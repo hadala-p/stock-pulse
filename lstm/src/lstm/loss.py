@@ -1,21 +1,26 @@
 import numpy as np
+from numpy.typing import NDArray
 
 
 class MeanSquaredError:
-    def forward(self, predicted, actual):
+    @staticmethod
+    def forward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> float:
         return np.mean((predicted - actual) ** 2)
 
-    def backward(self, predicted, actual):
+    @staticmethod
+    def backward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> NDArray[np.float64]:
         return 2 * (predicted - actual) / actual.size
 
 
 class CrossEntropyLoss:
-    def forward(self, predicted, actual):
-        epsilon = 1e-12
+    @staticmethod
+    def forward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> float:
+        epsilon: float = 1e-12
         predicted = np.clip(predicted, epsilon, 1. - epsilon)
         return -np.sum(actual * np.log(predicted)) / predicted.shape[0]
 
-    def backward(self, predicted, actual):
-        epsilon = 1e-12
+    @staticmethod
+    def backward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> NDArray[np.float64]:
+        epsilon: float = 1e-12
         predicted = np.clip(predicted, epsilon, 1. - epsilon)
         return -(actual / predicted) / actual.shape[0]
