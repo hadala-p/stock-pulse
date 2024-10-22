@@ -4,14 +4,23 @@ app.use(express.json())
 
 const port = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log("Server Listening on PORT:", port);
-  });
+app.listen(port, () => {
+  console.log("Server Listening on PORT:", port);
+});
 
-app.get("/status", (request, response) => {
-    const status = {
-    "status": "running"
-    };
-    
-    response.send(status);
-});  
+const { Sequelize } = require('sequelize');
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: './db.sqlite',
+})
+
+sequelize.sync({ alter: true });
+const User = require("./models/User");
+User.initialize(sequelize);
+
+const UserRoutes = require("./routes/UserRoutes");
+const AuthenticationRoutes = require("./routes/AuthenticationRoutes");
+const PredictionRoutes = require("./routes/PredictionRoutes");
+app.use("/user", UserRoutes);
+app.use("/auth", AuthenticationRoutes);
+app.use("/prediction", PredictionRoutes);
