@@ -1,31 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask
+from api.train import train_bp
+from api.predict import predict_bp
 
 app = Flask(__name__)
 
-
-# Initialize LSTM model
-# TODO: Initialize LSTM model
-
-
-@app.route('/')
-def index():
-    return "LSTM Model API is running"
-
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    """
-    API endpoint to provide predictions based on the input data.
-    """
-    # TODO: Implement prediction
-    return jsonify({'prediction': 'prediction'}), 200
-
-
-@app.route('/train', methods=['POST'])
-def train_model():
-    # TODO: Implement training
-    return jsonify({"status": "Model trained successfully"}), 200
-
+app.register_blueprint(train_bp)
+app.register_blueprint(predict_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
