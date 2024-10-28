@@ -14,13 +14,9 @@ const sequelize = new Sequelize({
   storage: './db.sqlite',
 })
 
+const models = require('./models/index.js');
+models.initialize(sequelize);
 sequelize.sync({ alter: true });
-const User = require("./models/User");
-User.initialize(sequelize);
 
-const UserRoutes = require("./routes/UserRoutes");
-const AuthenticationRoutes = require("./routes/AuthenticationRoutes");
-const PredictionRoutes = require("./routes/PredictionRoutes");
-app.use("/user", UserRoutes);
-app.use("/auth", AuthenticationRoutes);
-app.use("/prediction", PredictionRoutes);
+const routes = require('./routes/index.js');
+routes.initialize(app);

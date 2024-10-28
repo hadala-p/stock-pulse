@@ -18,18 +18,27 @@ const User = {
 };
 
 module.exports = {
-    initialize: (sequelize) => {
+    initialize(sequelize) {
         this.model = sequelize.define("User", User);
+        return this.model;
     },
 
-    createUser: (user) => {
+    createUser(user) {
         return this.model.create(user);
     },
 
-    findUserByEmail: (email) => {
+    findUserByEmail(email) {
         return this.model.findOne({
             where: {
                 email: email,
+            },
+        });
+    },
+
+    findUserByID(id) { 
+        return this.model.findOne({
+            where: {
+                id: id,
             },
         });
     },

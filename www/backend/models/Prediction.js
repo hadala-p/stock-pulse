@@ -1,5 +1,4 @@
 const { DataTypes } = require("sequelize");
-const { getPublicPredictions } = require("../controllers/PredictionController");
 
 const Prediction = {
     id: {
@@ -12,43 +11,42 @@ const Prediction = {
         allowNull: false,
     },
     baseData: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         allowNull: false,
     },
     predictedData: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         allowNull: false,
     },
 };
 
 module.exports = {
-    initialize: (sequelize) => {
+    initialize(sequelize) {
         this.model = sequelize.define("Prediction", Prediction);
-        this.model.belongsTo(User);
-        User.hasMany(this.model);
+        return this.model;
     },
 
-    postPrediction: (owner, companyName, baseData, predictedData) => {
+    postPrediction(owner, companyName, baseData, predictedData) {
         return this.model.create({
-            userId: owner.id,
+            UserId: owner.id,
             companyName: companyName,
             baseData: baseData,
             predictedData: predictedData,
         });
     },
 
-    getPublicPredictions: () => {
+    getPublicPredictions() {
         return this.model.findAll({ 
             where: {
-                userId: null,
+                UserId: null,
             }
         });
     },
 
-    getPredictionsOf: (user) => {
+    getPredictionsOf(user) {
         return this.model.findAll({
             where: {
-                userId: user.id,
+                UserId: user.id,
             },
         });
     },

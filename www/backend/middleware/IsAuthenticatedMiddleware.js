@@ -1,20 +1,20 @@
+const User = require('../models/User.js');
+const jwt = require('jsonwebtoken');
+
 module.exports = {
     check: (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        if (!authHeader) {
+        const token = req.headers.authorization;
+        const user = jwt.decode(token);
+        console.log(user)
+        if (user === null || user.exp < Date.now() / 1000) 
+        {
             return res.status(401).json({
                 status: false,
-                error: {
-                    message: 'Auth headers not provided in the request.'
-                }
+                error: "Unauthorized",
             });
         }
 
-        const {
-            user: { userId },
-        } = req;
-
-        UserModel.findUser({ id: userId }).then((user) => {
+        User.findUserByID(user.id).then((user) => {
             if (!user) {
               return res.status(403).json({
                 status: false,
@@ -22,9 +22,7 @@ module.exports = {
               });
             }
             else {
-                return res.status(201).json({
-                    status: true,
-                });
+                next();
             }
         });
     }
