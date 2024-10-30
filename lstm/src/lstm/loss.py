@@ -4,7 +4,7 @@ from numpy.typing import NDArray
 
 class MeanSquaredError:
     @staticmethod
-    def forward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> float:
+    def forward(predicted: NDArray[np.float64], actual: NDArray[np.float64]) -> np.floating:
         return np.mean((predicted - actual) ** 2)
 
     @staticmethod
