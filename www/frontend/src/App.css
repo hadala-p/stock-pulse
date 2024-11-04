@@ -1,0 +1,47 @@
+/* Główna zawartość */
+.content-container {
+    padding-top: 56px;
+}
+
+/* Ustawienia pełnej wysokości dla layoutu */
+html,
+body,
+#app {
+    height: 100%;
+    margin: 0;
+}
+
+/* Ustawienie minimalnej wysokości widoku */
+.min-vh-100 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styl dla stopki */
+footer {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+/* Styl dla zawartości */
+.content-offset {
+    margin-top: 20px;
+}
+
+.stock-chart {
+    height: 200px;
+}
+
+.card {
+    position: relative;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Efekt płynnej transformacji */
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: scale(1.05); /* Powiększenie przy najechaniu */
+}
