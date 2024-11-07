@@ -2,7 +2,7 @@
   <div class="container-fluid content-offset">
     <div class="row">
       <div class="col-md-4" v-for="(favorite, index) in favorites" :key="favorite.id">
-        <div class="card mb-4 p-3 shadow-sm" style="border-radius: 15px;">
+        <div class="card mb-4 p-3">
           <div class="card-body">
             <h5 class="card-title">{{ favorite.name }}</h5>
             <p :class="favorite.change >= 0 ? 'text-success' : 'text-danger'">
@@ -85,9 +85,14 @@ export default {
 
 <style>
 .favorite-chart {
-  height: 200px;
+  height: 12.5rem;
 }
 .card {
-  border-radius: 15px;
+  position: relative;
+  box-shadow: 0.25rem 0.25rem 1rem rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  box-shadow: 0.5rem 0.5rem 1.25rem rgba(0, 0, 0, 0.3);
 }
 </style>

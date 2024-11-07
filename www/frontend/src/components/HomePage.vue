@@ -2,7 +2,7 @@
   <div class="container-fluid content-offset">
     <div class="row">
       <div class="col-md-4" v-for="(stock, index) in stocks" :key="stock.id">
-        <div class="card mb-4 p-3 hover-shadow">
+        <div class="card mb-4 p-3">
           <div class="card-body">
             <h5 class="card-title">{{ stock.name }}</h5>
             <p :class="stock.change >= 0 ? 'text-success' : 'text-danger'">
@@ -89,15 +89,15 @@ export default {
 
 <style>
 .stock-chart {
-  height: 200px;
+  height: 12.5rem;
 }
 
 .card {
   position: relative;
-  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0.25rem 0.25rem 1rem rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
-  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0.5rem 0.5rem 1.25rem rgba(0, 0, 0, 0.3);
 }
 </style>
