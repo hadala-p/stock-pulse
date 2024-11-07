@@ -74,7 +74,7 @@ export default {
             },
           });
         } else {
-          console.warn(`Nie udało się uzyskać kontekstu dla wykresu: ${stock.name}`);
+          console.warn(`Failed to obtain context for the chart: ${stock.name}`);
         }
       });
     });

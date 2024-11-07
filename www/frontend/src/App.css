@@ -1,9 +1,9 @@
-/* Główna zawartość */
+/* Main content */
 .content-container {
     padding-top: 56px;
 }
 
-/* Ustawienia pełnej wysokości dla layoutu */
+/* Full height settings for layout */
 html,
 body,
 #app {
@@ -11,14 +11,14 @@ body,
     margin: 0;
 }
 
-/* Ustawienie minimalnej wysokości widoku */
+/* Minimum view height setting */
 .min-vh-100 {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Styl dla stopki */
+/* Style for footer */
 footer {
     background-color: #f8f9fa;
     padding: 10px 0;
@@ -26,7 +26,7 @@ footer {
     margin-top: auto;
 }
 
-/* Styl dla zawartości */
+/* Style for content */
 .content-offset {
     margin-top: 20px;
 }
@@ -38,10 +38,10 @@ footer {
 .card {
     position: relative;
     border-radius: 15px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Efekt płynnej transformacji */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transform effect */
     overflow: hidden;
 }
 
 .card:hover {
-    transform: scale(1.05); /* Powiększenie przy najechaniu */
+    transform: scale(1.05); /* Enlarge on hover */
 }

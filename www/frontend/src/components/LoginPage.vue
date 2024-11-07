@@ -2,10 +2,10 @@
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-4">
-        <h2 class="text-center mb-4">Logowanie</h2>
+        <h2 class="text-center mb-4">Sign in</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-3">
-            <label for="email" class="form-label">Adres Email</label>
+            <label for="email" class="form-label">Email</label>
             <input
                 type="email"
                 class="form-control"
@@ -15,7 +15,7 @@
             />
           </div>
           <div class="mb-3">
-            <label for="password" class="form-label">Hasło</label>
+            <label for="password" class="form-label">Password</label>
             <input
                 type="password"
                 class="form-control"
@@ -24,10 +24,10 @@
                 required
             />
           </div>
-          <button type="submit" class="btn btn-primary w-100">Zaloguj się</button>
+          <button type="submit" class="btn btn-primary w-100">Sign in</button>
         </form>
         <div class="text-center mt-3">
-          <p>Nie posiadasz konta? <router-link to="/register">Zarejestruj się!</router-link></p>
+          <p>Don't have an account? <router-link to="/register">Sign up!</router-link></p>
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@ export default {
   methods: {
     handleSubmit() {
       console.log('Email:', this.email);
-      console.log('Hasło:', this.password);
+      console.log('Password:', this.password);
     },
   },
 };

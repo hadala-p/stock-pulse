@@ -2,10 +2,10 @@
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-4">
-        <h2 class="text-center mb-4">Rejestracja</h2>
+        <h2 class="text-center mb-4">Sign up</h2>
         <form @submit.prevent="handleRegister">
           <div class="mb-3">
-            <label for="email" class="form-label">Adres Email</label>
+            <label for="email" class="form-label">Email</label>
             <input
                 type="email"
                 class="form-control"
@@ -15,7 +15,7 @@
             />
           </div>
           <div class="mb-3">
-            <label for="username" class="form-label">Nazwa Użytkownika</label>
+            <label for="username" class="form-label">NickName</label>
             <input
                 type="text"
                 class="form-control"
@@ -25,7 +25,7 @@
             />
           </div>
           <div class="mb-3">
-            <label for="password" class="form-label">Hasło</label>
+            <label for="password" class="form-label">Password</label>
             <input
                 type="password"
                 class="form-control"
@@ -35,7 +35,7 @@
             />
           </div>
           <div class="mb-3">
-            <label for="confirmPassword" class="form-label">Potwierdź Hasło</label>
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
             <input
                 type="password"
                 class="form-control"
@@ -44,10 +44,10 @@
                 required
             />
           </div>
-          <button type="submit" class="btn btn-primary w-100">Zarejestruj się</button>
+          <button type="submit" class="btn btn-primary w-100">Sign up</button>
         </form>
         <div class="text-center mt-3">
-          <p>Masz już konto? <router-link to="/login">Zaloguj się!</router-link></p>
+          <p>Have an account? <router-link to="/login">Sign in!</router-link></p>
         </div>
       </div>
     </div>
@@ -68,17 +68,17 @@ export default {
   methods: {
     handleRegister() {
       if (this.password !== this.confirmPassword) {
-        alert('Hasła nie są identyczne.');
+        alert('Passwords are not identical.');
         return;
       }
       if (this.password.length < 6) {
-        alert('Hasło musi mieć co najmniej 6 znaków.');
+        alert('The password must have at least 6 characters.');
         return;
       }
-      console.log('Rejestracja udana');
+      console.log('Registration successful');
       console.log('Email:', this.email);
-      console.log('Nazwa Użytkownika:', this.username);
-      console.log('Hasło:', this.password);
+      console.log('NickName:', this.username);
+      console.log('Password:', this.password);
     },
   },
 };

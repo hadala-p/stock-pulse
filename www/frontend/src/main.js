@@ -6,7 +6,7 @@ import router from './router';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-// Import głównego pliku CSS
+// Import CSS
 import './App.css';
 
 // Import Font Awesome

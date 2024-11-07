@@ -26,7 +26,7 @@
 
       <div>
         <router-link class="nav-link text-white" to="/login">
-          <i class="fas fa-sign-in-alt me-1"></i> Login
+          <i class="fas fa-sign-in-alt me-1"></i> Sign in
         </router-link>
       </div>
     </div>
@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style>
-/* Style dla ikon nawigacyjnych */
+/* Style for navigation icons */
 .navbar-nav {
   flex-direction: row;
 }
@@ -53,7 +53,7 @@ export default {
   color: #ddd;
 }
 
-/* Styl dla logotypu */
+/* Style for the logotype */
 .navbar-brand span {
   font-size: 1.25rem;
   font-weight: bold;
