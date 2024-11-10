@@ -1,0 +1,47 @@
+/* Main content */
+.content-container {
+    padding-top: 3.5rem;
+}
+
+/* Full height settings for layout */
+html,
+body,
+#app {
+    height: 100%;
+    margin: 0;
+}
+
+/* Minimum view height setting */
+.min-vh-100 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style for footer */
+footer {
+    background-color: #f8f9fa;
+    padding: 0.6rem 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+/* Style for content */
+.content-offset {
+    margin-top: 1.25rem;
+}
+
+.stock-chart {
+    height: 12.5rem;
+}
+
+.card {
+    position: relative;
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
