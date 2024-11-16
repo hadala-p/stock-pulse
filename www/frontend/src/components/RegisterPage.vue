@@ -55,6 +55,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'RegisterPage',
   data() {
@@ -66,7 +68,7 @@ export default {
     };
   },
   methods: {
-    handleRegister() {
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
         alert('Passwords are not identical.');
         return;
@@ -75,10 +77,24 @@ export default {
         alert('The password must have at least 6 characters.');
         return;
       }
-      console.log('Registration successful');
-      console.log('Email:', this.email);
-      console.log('NickName:', this.username);
-      console.log('Password:', this.password);
+
+      try {
+        const response = await axios.post('/auth/signup', {
+          email: this.email,
+          username: this.username,
+          password: this.password,
+        });
+
+        if (response.data.status) {
+          alert('Registration successful');
+          this.$router.push('/login');
+        } else {
+          alert('Registration failed: ' + response.data.error);
+        }
+      } catch (error) {
+        console.error('Error during registration:', error);
+        alert('An error occurred during registration.');
+      }
     },
   },
 };
