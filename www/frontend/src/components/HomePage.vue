@@ -2,7 +2,14 @@
   <div class="container-fluid content-offset">
     <div class="row">
       <div class="col-md-4" v-for="(stock, index) in stocks" :key="stock.id">
-        <div class="card mb-4 p-3">
+        <div class="card mb-4 p-3 position-relative">
+          <!-- Star icon -->
+          <i
+              class="star-icon fas fa-star"
+              :class="{ 'text-warning': starredIndexes.includes(index), 'text-secondary': !starredIndexes.includes(index) }"
+              @click="toggleStar(index)"
+          ></i>
+
           <div class="card-body">
             <h5 class="card-title">{{ stock.name }}</h5>
             <p :class="stock.change >= 0 ? 'text-success' : 'text-danger'">
@@ -18,7 +25,16 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Filler } from 'chart.js';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
+  Filler,
+} from 'chart.js';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Filler);
 
@@ -37,6 +53,7 @@ export default {
     ]);
 
     const chartRefs = ref([]);
+    const starredIndexes = ref([]);
 
     onMounted(() => {
       stocks.value.forEach((stock, index) => {
@@ -54,8 +71,9 @@ export default {
                   label: `${stock.name} Price Prediction`,
                   data: Array.from({ length: 30 }, () => Math.random() * 100 + 100),
                   borderColor: stock.change >= 0 ? 'green' : 'red',
-                  backgroundColor: stock.change >= 0 ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
-                  fill: true, // Obsługa `fill` po zarejestrowaniu `Filler`
+                  backgroundColor:
+                      stock.change >= 0 ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+                  fill: true,
                 },
               ],
             },
@@ -79,15 +97,25 @@ export default {
       });
     });
 
+    const toggleStar = (index) => {
+      if (starredIndexes.value.includes(index)) {
+        starredIndexes.value = starredIndexes.value.filter((i) => i !== index);
+      } else {
+        starredIndexes.value.push(index);
+      }
+    };
+
     return {
       stocks,
       chartRefs,
+      toggleStar,
+      starredIndexes,
     };
   },
 };
 </script>
 
-<style>
+<style scoped>
 .stock-chart {
   height: 12.5rem;
 }
@@ -99,5 +127,17 @@ export default {
 
 .card:hover {
   box-shadow: 0.5rem 0.5rem 1.25rem rgba(0, 0, 0, 0.3);
+}
+
+.star-icon {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.star-icon:hover {
+  color: orange;
 }
 </style>

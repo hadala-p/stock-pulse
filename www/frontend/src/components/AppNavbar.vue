@@ -6,28 +6,40 @@
         <span>Stock-Pulse</span>
       </router-link>
 
-      <ul class="navbar-nav flex-row">
-        <li class="nav-item mx-3">
-          <router-link class="nav-link" to="/" aria-label="Dashboard">
-            <i class="fas fa-chart-line fa-lg"></i>
-          </router-link>
-        </li>
-        <li class="nav-item mx-3">
-          <router-link class="nav-link" to="/predictions" aria-label="Predictions">
-            <i class="fas fa-chart-pie fa-lg"></i>
-          </router-link>
-        </li>
-        <li class="nav-item mx-3">
-          <router-link class="nav-link" to="/favorites" aria-label="Favorites">
-            <i class="fas fa-star fa-lg"></i>
-          </router-link>
-        </li>
-      </ul>
+      <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-      <div>
-        <router-link class="nav-link text-white" to="/login">
-          <i class="fas fa-sign-in-alt me-1"></i> Sign in
-        </router-link>
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto"></ul>
+
+        <form class="d-flex mx-auto my-2 my-lg-0" @submit.prevent="handleSearch">
+          <input
+              class="form-control search-input"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+              v-model="searchQuery"
+          />
+          <button class="btn btn-outline-light" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link class="nav-link text-white" to="/login">
+              <i class="fas fa-sign-in-alt me-1"></i> Sign in
+            </router-link>
+          </li>
+        </ul>
       </div>
     </div>
   </nav>
@@ -36,27 +48,36 @@
 <script>
 export default {
   name: 'AppNavbar',
+  data() {
+    return {
+      searchQuery: '',
+    };
+  },
+  methods: {
+    handleSearch() {
+      // Logic to handle search
+      // TO DO: Implement search functionality
+      console.log('Search query:', this.searchQuery);
+    },
+  },
 };
 </script>
 
-<style>
-/* Style for navigation icons */
-.navbar-nav {
-  flex-direction: row;
-}
-
-.nav-item .nav-link {
-  color: #fff;
-}
-
-.nav-item .nav-link:hover {
-  color: #ddd;
-}
-
-/* Style for the logotype */
+<style scoped>
+/* Logo styling */
 .navbar-brand span {
   font-size: 1.25rem;
   font-weight: bold;
   color: #fff;
+}
+
+/* Search bar styling */
+.search-input {
+  width: 10rem;
+  transition: width 0.3s ease;
+}
+
+.search-input:focus {
+  width: 30rem;
 }
 </style>
