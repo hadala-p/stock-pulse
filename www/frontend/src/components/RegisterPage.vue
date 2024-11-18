@@ -15,12 +15,12 @@
             />
           </div>
           <div class="mb-3">
-            <label for="username" class="form-label">NickName</label>
+            <label for="nickname" class="form-label">NickName</label>
             <input
                 type="text"
                 class="form-control"
-                id="username"
-                v-model="username"
+                id="nickname"
+                v-model="nickname"
                 required
             />
           </div>
@@ -62,7 +62,7 @@ export default {
   data() {
     return {
       email: '',
-      username: '',
+      nickname: '',
       password: '',
       confirmPassword: '',
     };
@@ -81,7 +81,7 @@ export default {
       try {
         const response = await axios.post('/auth/signup', {
           email: this.email,
-          username: this.username,
+          nickname: this.nickname,
           password: this.password,
         });
 

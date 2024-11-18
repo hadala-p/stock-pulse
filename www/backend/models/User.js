@@ -6,6 +6,10 @@ const User = {
         autoIncrement: true,
         primaryKey: true,
     },
+    nickname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
