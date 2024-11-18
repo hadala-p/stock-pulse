@@ -35,8 +35,18 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { inject } from 'vue';
+
 export default {
   name: 'LoginPage',
+  setup() {
+    const updateLoginStatus = inject('updateLoginStatus');
+
+    return {
+      updateLoginStatus,
+    };
+  },
   data() {
     return {
       email: '',
@@ -44,9 +54,24 @@ export default {
     };
   },
   methods: {
-    handleSubmit() {
-      console.log('Email:', this.email);
-      console.log('Password:', this.password);
+    async handleSubmit() {
+      try {
+        const response = await axios.post('/auth/login', {
+          email: this.email,
+          password: this.password,
+        });
+
+        if (response.data.status) {
+          localStorage.setItem('token', response.data.result.token);
+          this.updateLoginStatus(true);
+          this.$router.push('/');
+        } else {
+          alert('Login failed: ' + response.data.error);
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+        alert('An error occurred during login.');
+      }
     },
   },
 };
