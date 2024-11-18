@@ -10,18 +10,20 @@
             class="card mb-4 p-3 position-relative"
             @click="openModal(stock)"
             style="cursor: pointer;"
-            data-bs-toggle="modal"
-            data-bs-target="#stockModal"
         >
           <!-- Star icon -->
-          <i
-              class="star-icon fas fa-star"
+          <button
+              class="star-button"
               :class="{
-              'text-warning': starredIndexes.includes(index),
-              'text-secondary': !starredIndexes.includes(index),
-            }"
+                'text-warning': starredIndexes.includes(index),
+                'text-secondary': !starredIndexes.includes(index),
+                'pulse': animatingIndexes.includes(index),
+              }"
               @click.stop="toggleStar(index)"
-          ></i>
+              aria-label="Toggle Star"
+          >
+            <i class="fas fa-star"></i>
+          </button>
 
           <div class="card-body position-relative">
             <h5 class="card-title">{{ stock.name }}</h5>
@@ -33,7 +35,6 @@
                   :ref="el => chartRefs[index] = el"
                   class="stock-chart"
               ></canvas>
-              <!-- Blurred overlay -->
               <div class="blur-overlay">
                 <div class="prediction-label">Prediction</div>
               </div>
@@ -96,8 +97,6 @@
   </div>
 </template>
 
-
-
 <script>
 import oknoImage from '@/assets/okno.png';
 import { ref, onMounted, nextTick } from 'vue';
@@ -111,6 +110,7 @@ import {
   CategoryScale,
   Filler,
 } from 'chart.js';
+import { Modal } from 'bootstrap';
 
 Chart.register(
     LineController,
@@ -139,6 +139,7 @@ export default {
     const chartRefs = ref([]);
     const chartInstances = ref([]);
     const starredIndexes = ref([]);
+    const animatingIndexes = ref([]);
 
     const selectedStock = ref({});
     const modalChartRef = ref(null);
@@ -223,6 +224,10 @@ export default {
       } else {
         starredIndexes.value.push(index);
       }
+      animatingIndexes.value.push(index);
+      setTimeout(() => {
+        animatingIndexes.value = animatingIndexes.value.filter((i) => i !== index);
+      }, 300);
     };
 
     const openModal = (stock) => {
@@ -238,6 +243,9 @@ export default {
               true
           );
         }
+        const modalElement = document.getElementById('stockModal');
+        const modal = new Modal(modalElement);
+        modal.show();
       });
     };
 
@@ -246,6 +254,7 @@ export default {
       chartRefs,
       toggleStar,
       starredIndexes,
+      animatingIndexes,
       selectedStock,
       modalChartRef,
       openModal,
@@ -292,17 +301,42 @@ export default {
   box-shadow: 0.5rem 0.5rem 1.25rem rgba(0, 0, 0, 0.3);
 }
 
-.star-icon {
+.star-button {
   position: absolute;
   top: 0.8rem;
   right: 0.75rem;
-  font-size: 1rem;
+  background: transparent;
+  border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.star-icon:hover {
+.star-button .fas {
+  font-size: 1rem;
+  color: inherit;
+}
+
+.star-button:hover .fas {
   color: orange;
 }
+
+.pulse .fas {
+  animation: pulse 0.3s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 </style>
-
-
