@@ -25,17 +25,46 @@
       </ul>
 
       <div>
-        <router-link class="nav-link text-white" to="/login">
-          <i class="fas fa-sign-in-alt me-1"></i> Sign in
-        </router-link>
+        <template v-if="isLoggedIn">
+          <router-link class="nav-link text-white" to="/profile">
+            <i class="fas fa-user me-1"></i> Profile
+          </router-link>
+          <button @click="logout" class="btn btn-link nav-link text-white">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          </button>
+        </template>
+        <template v-else>
+          <router-link class="nav-link text-white" to="/login">
+            <i class="fas fa-sign-in-alt me-1"></i> Sign in
+          </router-link>
+        </template>
       </div>
     </div>
   </nav>
 </template>
 
 <script>
+import { inject } from 'vue';
+import { useRouter } from 'vue-router';
+
 export default {
   name: 'AppNavbar',
+  setup() {
+    const isLoggedIn = inject('isLoggedIn');
+    const updateLoginStatus = inject('updateLoginStatus');
+    const router = useRouter();
+
+    const logout = () => {
+      localStorage.removeItem('token');
+      updateLoginStatus(false);
+      router.push('/login');
+    };
+
+    return {
+      isLoggedIn,
+      logout,
+    };
+  },
 };
 </script>
 
