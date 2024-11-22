@@ -18,17 +18,20 @@ class LSTMModel:
         self.output_weights = np.random.randn(output_size, hidden_size) * 0.01
         self.output_bias = np.zeros((output_size, 1))
         self.optimizer = optimizer
+        self.hidden_state: NDArray[np.float64] = np.zeros((self.hidden_size, 1))
+        self.cell_state: NDArray[np.float64] = np.zeros((self.hidden_size, 1))
 
-    def forward(self, x: NDArray[np.float64]) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-        hidden_state: NDArray[np.float64] = np.zeros((self.hidden_size, 1))
-        cell_state: NDArray[np.float64] = np.zeros((self.hidden_size, 1))
-
+    def forward(self, x: NDArray[np.float64], training = False) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
         for t in range(self.sequence_length):
             input_timestep: NDArray[np.float64] = x[t].reshape(self.input_size, 1)
-            hidden_state, cell_state = self.lstm_layer.forward(input_timestep, hidden_state, cell_state)
+            self.hidden_state, self.cell_state = self.lstm_layer.forward(input_timestep, self.hidden_state, self.cell_state, training)
 
-        output: NDArray[np.float64] = np.dot(self.output_weights, hidden_state) + self.output_bias
-        return output, hidden_state
+        output: NDArray[np.float64] = np.dot(self.output_weights, self.hidden_state) + self.output_bias
+        return output, self.hidden_state
+
+    def reset_states(self):
+        self.hidden_state = np.zeros((self.hidden_size, 1))
+        self.cell_state = np.zeros((self.hidden_size, 1))
 
     def train(self, x_train, y_train, epochs=100):
         for epoch in range(epochs):
@@ -36,10 +39,11 @@ class LSTMModel:
             for i in range(len(x_train)):
                 input_sequence = x_train[i]
                 true_output = y_train[i]
+                predicted_output, hidden_state = self.forward(input_sequence, training=True)
 
-                predicted_output, hidden_state = self.forward(input_sequence)
-
-                loss = np.mean((predicted_output - true_output) ** 2)
+                loss = np.mean((predicted_output[0][0] - true_output) ** 2)
+                if i % 10 == 0:
+                     print(f"[Training {i}/{len(x_train)}] Precicted: {predicted_output}, Actual: {true_output}")                 
                 epoch_loss += loss
 
                 output_gradient = 2 * (predicted_output - true_output) / true_output.size
@@ -76,18 +80,5 @@ class LSTMModel:
                     gradient_cell_state_weights, gradient_cell_state_bias
                 ]
                 self.optimizer.update(params, grads)
-
-            # Develop
-            # if (epoch + 1) % 2 == 0:
-            #     print(f"Epoch {epoch + 1}/{epochs}, Loss: {epoch_loss / len(x_train)}")
-
-    def predict(self, x):
-        hidden_state = np.zeros((self.hidden_size, 1))
-        cell_state = np.zeros((self.hidden_size, 1))
-
-        for t in range(self.sequence_length):
-            input_timestep = x[t].reshape(self.input_size, 1)
-            hidden_state, cell_state = self.lstm_layer.forward(input_timestep, hidden_state, cell_state)
-
-        output = np.dot(self.output_weights, hidden_state) + self.output_bias
-        return output
+            self.reset_states()    
+            print(f"Epoch {epoch + 1}/{epochs}, Loss: {epoch_loss / len(x_train)}")

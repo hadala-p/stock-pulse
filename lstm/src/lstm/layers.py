@@ -22,7 +22,7 @@ class LSTMLayer:
 
         self.cache = []
 
-    def forward(self, x: NDArray[np.float64], previous_hidden_state: NDArray[np.float64], previous_cell_state: NDArray[np.float64]) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    def forward(self, x: NDArray[np.float64], previous_hidden_state: NDArray[np.float64], previous_cell_state: NDArray[np.float64], training = False) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
         concatenated_input = np.vstack((previous_hidden_state, x))
 
         forget_gate_output = sigmoid(np.dot(self.forget_gate_weights, concatenated_input) + self.forget_gate_bias)
@@ -33,7 +33,7 @@ class LSTMLayer:
         updated_cell_state = forget_gate_output * previous_cell_state + input_gate_output * candidate_cell_state
         updated_hidden_state = output_gate_output * tanh(updated_cell_state)
 
-        if self.dropout_rate > 0:
+        if self.dropout_rate > 0 and training:
             dropout_mask = (np.random.rand(*updated_hidden_state.shape) > self.dropout_rate).astype(float)
             updated_hidden_state *= dropout_mask / (1 - self.dropout_rate)
 

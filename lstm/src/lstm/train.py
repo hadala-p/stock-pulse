@@ -13,7 +13,7 @@ close_prices = data['Close'].values.reshape(-1, 1)
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaled_prices = scaler.fit_transform(close_prices)
 
-sequence_length = 60
+sequence_length = 30
 input_size = 1
 hidden_size = 50
 output_size = 1
@@ -49,6 +49,7 @@ predictions = []
 for x in x_test_list:
     prediction = model.predict(x)
     predictions.append(prediction[0][0])
+    print(f"{prediction[0][0]}")
 
 predictions = scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
 y_test_actual = scaler.inverse_transform(y_test.reshape(-1, 1))
