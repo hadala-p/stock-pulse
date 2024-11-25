@@ -86,7 +86,9 @@ def predict():
     plt.ylabel('Stock Price')
     plt.legend()
     plt.title("Prediction vs Actual")
+    plt.ylim(bottom=0)
     plt.show()
+
 
     return jsonify({"status": "Prediction completed successfully."})
 
