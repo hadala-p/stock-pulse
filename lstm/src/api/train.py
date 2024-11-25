@@ -12,7 +12,7 @@ input_size = 1
 hidden_size = 300
 output_size = 30
 sequence_length = 30
-epochs = 3
+epochs = 15
 model_file_name = 'model.sp'
 
 def initialize_model(sequence_length):
@@ -70,9 +70,9 @@ def predict():
     x_train, y_train = create_sequences(x_data, sequence_length, output_size)
 
     # Predict for the first sequence in the batch
-    predicted_output, _ = model.forward(x_train[0])
+    predicted_output, _ = model.forward(x_train[20])
 
-    y_train_actual = y_train[0]
+    y_train_actual = y_train[20]
 
     # Plot actual vs. predicted values
     plt.plot(model.denormalize_data(y_train_actual).reshape(-1), label='Actual Price')
