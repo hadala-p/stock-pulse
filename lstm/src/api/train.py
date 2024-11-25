@@ -12,7 +12,7 @@ input_size = 1
 hidden_size = 300
 output_size = 30
 sequence_length = 30
-epochs = 15
+epochs = 150
 model_file_name = 'model.sp'
 
 def initialize_model(sequence_length):
@@ -37,11 +37,10 @@ def train():
         return jsonify({"error": "Not enough data points for training."}), 400  
     
     x_data = np.array([float(item) for item in input_data])
-    print(f"Data shape: {x_data.shape}")
-    x_data_norm = model.normalize_data(x_data)
-    x_data_norm = x_data_norm.reshape(-1)
+    x_data = np.flip(x_data)
+    x_data_deltas = np.diff(x_data)
 
-    x_train, y_train = create_sequences(x_data_norm, sequence_length, output_size)
+    x_train, y_train = create_sequences(x_data_deltas, sequence_length, output_size)
     print(f"Start training")
     model.train(x_train, y_train, epochs=epochs)
     print(f"End training")
@@ -65,18 +64,19 @@ def predict():
 
     # Preprocess input data
     x_data = np.array([float(item) for item in input_data])
-    x_data = model.normalize_data(x_data)
-    x_data = x_data.reshape(-1)
+    x_data = np.flip(x_data)
     x_train, y_train = create_sequences(x_data, sequence_length, output_size)
 
     # Predict for the first sequence in the batch
-    predicted_output, _ = model.forward(x_train[20])
-
-    y_train_actual = y_train[20]
+    selected_sequence = 700
+    x_train_deltas = np.diff(x_train[selected_sequence])
+    x_train_deltas = np.insert(x_train_deltas, 0, 0)
+    predicted_output_deltas, _ = model.forward(x_train_deltas)
+    predicted_output = np.cumsum(np.insert(predicted_output_deltas.flatten(), 0, x_train[selected_sequence - 1][-1]))
 
     # Plot actual vs. predicted values
-    plt.plot(model.denormalize_data(y_train_actual).reshape(-1), label='Actual Price')
-    plt.plot(model.denormalize_data(predicted_output).reshape(-1), label='Predicted Price')
+    plt.plot(y_train[selected_sequence], label='Actual Price')
+    plt.plot(predicted_output, label='Predicted Price')
     plt.xlabel('Time')
     plt.ylabel('Stock Price')
     plt.legend()

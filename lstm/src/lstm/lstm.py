@@ -19,17 +19,6 @@ class LSTMModel:
         self.output_bias = np.zeros((output_size, 1))
         self.optimizer = optimizer
         self.best_loss = float('inf')
-        self.feature_min = None
-        self.feature_max = None
-
-    def normalize_data(self, data: NDArray[np.float64]) -> NDArray[np.float64]:
-        if self.feature_min is None or self.feature_max is None:
-            self.feature_min = np.min(data)
-            self.feature_max = np.max(data)
-        return (data - self.feature_min) / (self.feature_max - self.feature_min + 1e-8)
-
-    def denormalize_data(self, data: NDArray[np.float64]) -> NDArray[np.float64]:
-        return data * (self.feature_max - self.feature_min + 1e-8) + self.feature_min
 
     def load_model(self, model_data) -> None:
         self.output_weights = model_data.output_weights
