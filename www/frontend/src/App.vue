@@ -8,7 +8,7 @@
 <script>
 import MainLayout from './layouts/MainLayout.vue';
 import AppNavbar from './components/AppNavbar.vue';
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 
 export default {
   name: 'App',
@@ -18,13 +18,28 @@ export default {
   },
   setup() {
     const isLoggedIn = ref(!!localStorage.getItem('token'));
+    const nickname = ref(localStorage.getItem('nickname') || '');
 
     const updateLoginStatus = (status) => {
       isLoggedIn.value = status;
+      if (!status) {
+        nickname.value = '';
+      }
     };
+
+
+    const updateNickname = (newNickname) => {
+      nickname.value = newNickname;
+    };
+
+    onMounted(() => {
+      nickname.value = localStorage.getItem('nickname') || '';
+    });
 
     provide('isLoggedIn', isLoggedIn);
     provide('updateLoginStatus', updateLoginStatus);
+    provide('nickname', nickname);
+    provide('updateNickname', updateNickname);
 
     return {};
   },

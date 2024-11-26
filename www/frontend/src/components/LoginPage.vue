@@ -36,43 +36,50 @@
 
 <script>
 import axios from 'axios';
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'LoginPage',
   setup() {
     const updateLoginStatus = inject('updateLoginStatus');
+    const updateNickname = inject('updateNickname');
+    const router = useRouter();
 
-    return {
-      updateLoginStatus,
-    };
-  },
-  data() {
-    return {
-      email: '',
-      password: '',
-    };
-  },
-  methods: {
-    async handleSubmit() {
+    const email = ref('');
+    const password = ref('');
+
+    const handleSubmit = async () => {
       try {
         const response = await axios.post('/auth/login', {
-          email: this.email,
-          password: this.password,
+          email: email.value,
+          password: password.value,
         });
 
         if (response.data.status) {
-          localStorage.setItem('token', response.data.result.token);
-          this.updateLoginStatus(true);
-          this.$router.push('/');
+          const { token, user } = response.data.result;
+
+          localStorage.setItem('token', token);
+          localStorage.setItem('nickname', user.nickname);
+
+          updateLoginStatus(true);
+          updateNickname(user.nickname);
+
+          router.push('/');
         } else {
-          alert('Login failed: ' + response.data.error);
+          alert('Login failed: ' + (response.data.error || 'Incorrect email or password.'));
         }
       } catch (error) {
         console.error('Error during login:', error);
         alert('An error occurred during login.');
       }
-    },
+    };
+
+    return {
+      email,
+      password,
+      handleSubmit,
+    };
   },
 };
 </script>
