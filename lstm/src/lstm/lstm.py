@@ -22,8 +22,6 @@ class LSTMModel:
         self.output_bias = np.zeros((output_size, 1))
         self.optimizer = optimizer
         self.best_loss = float('inf')
-        self.feature_min = None
-        self.feature_max = None
 
     def forward(self, x: NDArray[np.float64], training=False) -> Tuple[NDArray[np.float64], list[NDArray[np.float64]]]:
         hidden_states = [np.zeros((hidden_size, 1)) for hidden_size in self.hidden_sizes]

@@ -14,8 +14,10 @@ hidden_sizes = [128, 128]
 output_size = 30
 sequence_length = 60
 epochs = 200
+feature_min = 30
+feature_max = 250
 model_file_name = 'model.sp'
-selected_sequence = 20
+selected_sequence = 100
 
 def initialize_model(sequence_length):
     optimizer = Adam(learning_rate=0.0002)
@@ -41,24 +43,13 @@ def train():
     
     x_trains = []
     y_trains = []
-    feature_min = float('inf')
-    feature_max = -float('inf')
-    company_diff_data = []
     for company_data in input_data:
+        print(f"Company data: {len(company_data)} entries")
         x_data = np.array([float(item) for item in company_data])
         x_data = np.flip(x_data)
-        x_data = np.diff(x_data)
-        feature_min = min(feature_min, np.min(x_data))
-        feature_max = max(feature_max, np.max(x_data))
-        company_diff_data.append(x_data)
-
-    for company_data in company_diff_data:
-        print(f"Company data: {len(company_data)} entries")
-        x_data_norm = normalize_data(company_data, feature_min, feature_max)
+        x_data_norm = normalize_data(x_data, feature_min, feature_max)
         x_data_norm = x_data_norm.reshape(-1)
         x_train, y_train = create_sequences(x_data_norm, sequence_length, output_size)
-        # append x_train elements to x_trains
-        # append y_train elements to y_trains
         for x_train_value, y_train_value in zip(x_train, y_train):
             x_trains.append(x_train_value)
             y_trains.append(y_train_value)
@@ -80,21 +71,17 @@ def predict():
 
     x_data = np.array([float(item) for item in input_data])
     x_data = np.flip(x_data)
-    x_data = np.diff(x_data)
-    x_train = np.insert(x_data, 0, 0)
-    feature_min = np.min(x_train)
-    feature_max = np.max(x_train)
-    x_data = normalize_data(x_train, feature_min, feature_max)
-    x_data = x_data.reshape(-1)
+    x_data_norm = normalize_data(x_data, feature_min, feature_max)
+    x_data_norm = x_data_norm.reshape(-1)
+    x_train_norm, y_train_norm = create_sequences(x_data_norm, sequence_length, output_size)
     x_train, y_train = create_sequences(x_data, sequence_length, output_size)
 
-    predicted_output_deltas, _ = model.forward(x_train[selected_sequence])
-    predicted_output = np.cumsum(np.insert(predicted_output_deltas.flatten(), 0, x_train[selected_sequence - 1][-1]))
+    predicted_output_norm, _ = model.forward(x_train_norm[selected_sequence])
+    predicted_output = denormalize_data(predicted_output_norm, feature_min, feature_max).reshape(-1)
 
-    y_train_actual = y_train[selected_sequence]
-
-    plt.plot(denormalize_data(y_train_actual, feature_min, feature_max).reshape(-1), label='Actual Price')
-    plt.plot(denormalize_data(predicted_output, feature_min, feature_max).reshape(-1), label='Predicted Price')
+    plt.plot(y_train[selected_sequence], label='Actual Price')
+    plt.plot(predicted_output, label='Predicted Price')
+    plt.ylim(ymin=0)
     plt.xlabel('Time')
     plt.ylabel('Stock Price')
     plt.legend()
