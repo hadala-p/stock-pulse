@@ -42,6 +42,18 @@
           </div>
         </div>
       </div>
+      <div class="col-md-4">
+        <div
+            class="card mb-4 p-3 position-relative add-card"
+            @click="openAddModal"
+            style="cursor: pointer;"
+        >
+          <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <i class="fas fa-plus fa-3x mb-3"></i>
+            <h5 class="card-title text-center">Add new prediction</h5>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div
@@ -94,11 +106,58 @@
         </div>
       </div>
     </div>
+    <div
+        class="modal fade"
+        id="addPredictionModal"
+        tabindex="-1"
+        aria-labelledby="addPredictionModalLabel"
+        aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addPredictionModalLabel">
+              Add new prediction
+            </h5>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div
+                class="drag-drop-area"
+                @dragover.prevent
+                @drop.prevent="handleFileDrop"
+                @click="triggerFileInput"
+            >
+              <p>Drag and drop the file here or click to select a file</p>
+              <input
+                  type="file"
+                  ref="fileInputRef"
+                  @change="handleFileChange"
+                  style="display: none;"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import oknoImage from '@/assets/okno.png';
 import { ref, onMounted, nextTick } from 'vue';
 import {
   Chart,
@@ -125,15 +184,13 @@ Chart.register(
 export default {
   setup() {
     const stocks = ref([
-      { id: 'AAPL', name: 'Apple Inc.', change: 5.2, image: oknoImage},
-      { id: 'GOOGL', name: 'Alphabet Inc.', change: -3.1, image: oknoImage },
-      { id: 'MSFT', name: 'Microsoft Corp.', change: 1.8, image: oknoImage },
-      { id: 'FB', name: 'Meta Platforms, Inc.', change: 3.2, image: oknoImage },
-      { id: 'NVDA', name: 'NVIDIA Corporation', change: 8.5, image: oknoImage },
-      { id: 'DIS', name: 'The Walt Disney Company', change: -1.3, image: oknoImage },
-      { id: 'TSLA', name: 'Tesla Inc.', change: 6.5, image: oknoImage },
-      { id: 'AMZN', name: 'Amazon.com Inc.', change: -2.4, image: oknoImage },
-      { id: 'NFLX', name: 'Netflix Inc.', change: 4.1, image: oknoImage },
+      { id: 'AAPL', name: 'Apple Inc.', change: 5.2},
+      { id: 'GOOGL', name: 'Alphabet Inc.', change: -3.1},
+      { id: 'MSFT', name: 'Microsoft Corp.', change: 1.8},
+      { id: 'NVDA', name: 'NVIDIA Corporation', change: 8.5},
+      { id: 'TSLA', name: 'Tesla Inc.', change: 6.5},
+      { id: 'AMZN', name: 'Amazon.com Inc.', change: -2.4},
+      { id: 'NFLX', name: 'Netflix Inc.', change: 4.1},
     ]);
 
     const chartRefs = ref([]);
@@ -144,20 +201,12 @@ export default {
     const selectedStock = ref({});
     const modalChartRef = ref(null);
     const modalChartInstance = ref(null);
+    const fileInputRef = ref(null);
 
     const createChart = (canvas, stock, isModal = false) => {
       const ctx = canvas.getContext('2d');
-
-      const totalDays = 30;
-      const historicalDays = 20;
-      const predictedDays = totalDays - historicalDays;
-      const labels = Array.from({ length: totalDays }, (_, i) => `Day ${i + 1}`);
-      const historicalData = Array.from({ length: historicalDays }, () => Math.random() * 100 + 100);
-      const lastHistoricalPrice = historicalData[historicalData.length - 1];
-      const predictedData = Array.from({ length: predictedDays }, () => lastHistoricalPrice + (Math.random() * 10 - 5));
-
-      const data = [...historicalData, ...predictedData];
-
+      const data = stock.baseData || generateRandomData();
+      const labels = data.map((_, index) => `Day ${index + 1}`);
       const datasets = [
         {
           label: `${stock.name} Price`,
@@ -205,6 +254,11 @@ export default {
       });
     };
 
+    const generateRandomData = () => {
+      const totalDays = 30;
+      return Array.from({ length: totalDays }, () => Math.random() * 100 + 100);
+    };
+
     onMounted(() => {
       stocks.value.forEach((stock, index) => {
         const canvas = chartRefs.value[index];
@@ -249,6 +303,75 @@ export default {
       });
     };
 
+    const openAddModal = () => {
+      const modalElement = document.getElementById('addPredictionModal');
+      const modal = new Modal(modalElement);
+      modal.show();
+    };
+
+    const triggerFileInput = () => {
+      fileInputRef.value.click();
+    };
+
+    const handleFileDrop = (event) => {
+      const files = event.dataTransfer.files;
+      handleFile(files[0]);
+    };
+
+    const handleFileChange = (event) => {
+      const files = event.target.files;
+      handleFile(files[0]);
+    };
+
+    const handleFile = (file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          validateFile(json);
+        } catch (error) {
+          alert('Incorrect JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    const validateFile = (json) => {
+      if (
+          typeof json === 'object' &&
+          json !== null &&
+          'companyName' in json &&
+          'baseData' in json &&
+          Array.isArray(json.baseData)
+      ) {
+        // correct validation
+        const newStock = {
+          id: json.companyName,
+          name: json.companyName,
+          change: 0,
+          image: null,
+          baseData: json.baseData,
+        };
+        stocks.value.push(newStock);
+
+        nextTick(() => {
+          const index = stocks.value.length - 1;
+          const canvas = chartRefs.value[index];
+          if (canvas && canvas.getContext) {
+            const chartInstance = createChart(canvas, newStock);
+            chartInstances.value[index] = chartInstance;
+          }
+        });
+        const modalElement = document.getElementById('addPredictionModal');
+        const modal = Modal.getInstance(modalElement);
+        modal.hide();
+      } else {
+        alert(
+            'Invalid format. The JSON file should be an object containing the keys "companyName" (string) and "baseData" (array).'
+        );
+      }
+    };
+
     return {
       stocks,
       chartRefs,
@@ -258,6 +381,11 @@ export default {
       selectedStock,
       modalChartRef,
       openModal,
+      openAddModal,
+      triggerFileInput,
+      handleFileDrop,
+      handleFileChange,
+      fileInputRef,
     };
   },
 };
@@ -285,8 +413,8 @@ export default {
 
 .prediction-label {
   position: absolute;
-  top: 10px;
-  left: 50%;
+  top: 0.6rem;
+  left: 70%;
   transform: translateX(-50%);
   font-weight: bold;
   color: #333;
@@ -294,11 +422,14 @@ export default {
 
 .card {
   position: relative;
-  box-shadow: 0.25rem 0.25rem 1rem rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  min-height: 25rem;
 }
 
 .card:hover {
-  box-shadow: 0.5rem 0.5rem 1.25rem rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
 }
 
 .star-button {
@@ -338,5 +469,42 @@ export default {
   100% {
     transform: scale(1);
   }
+}
+
+.add-card {
+  background-color: #f8f9fa;
+  border: 0.1rem dashed #ced4da;
+}
+
+.add-card:hover {
+  background-color: #e2e6ea;
+}
+
+.add-card .card-body {
+  padding: 1.5rem;
+}
+
+.drag-drop-area {
+  border: 0.1rem dashed #ced4da;
+  border-radius: 0.3rem;
+  padding: 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.drag-drop-area:hover {
+  background-color: #f8f9fa;
+}
+
+.drag-drop-area p {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.modal-stock-chart {
+  width: 100%;
+  height: 25rem;
 }
 </style>
