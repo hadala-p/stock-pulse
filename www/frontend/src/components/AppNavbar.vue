@@ -37,7 +37,7 @@
           <template v-if="isLoggedIn">
             <li class="nav-item">
               <router-link class="nav-link text-white" to="/profile">
-                <i class="fas fa-user me-1"></i> Profile
+                <i class="fas fa-user me-1"></i> {{ nickname }}
               </router-link>
             </li>
             <li class="nav-item">
@@ -68,10 +68,12 @@ export default {
   setup() {
     const isLoggedIn = inject('isLoggedIn');
     const updateLoginStatus = inject('updateLoginStatus');
+    const nickname = inject('nickname');
     const router = useRouter();
 
     const logout = () => {
       localStorage.removeItem('token');
+      localStorage.removeItem('nickname');
       updateLoginStatus(false);
       router.push('/login');
     };
@@ -79,6 +81,7 @@ export default {
     return {
       isLoggedIn,
       logout,
+      nickname,
     };
   },
   data() {
