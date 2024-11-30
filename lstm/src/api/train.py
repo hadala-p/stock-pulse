@@ -11,16 +11,17 @@ train_bp = Blueprint('train', __name__)
 
 input_size = 1
 hidden_sizes = [128, 128]
-output_size = 30
+output_size = 1
+prediction_days = 30
 sequence_length = 60
 epochs = 200
 feature_min = 30
 feature_max = 250
 model_file_name = 'model.sp'
-selected_sequence = 100
+selected_sequence = 20
 
 def initialize_model(sequence_length):
-    optimizer = Adam(learning_rate=0.0002)
+    optimizer = Adam(learning_rate=0.001)
     return LSTMModel(input_size, hidden_sizes, output_size, sequence_length, optimizer)
 
 model = initialize_model(sequence_length)
@@ -76,10 +77,19 @@ def predict():
     x_train_norm, y_train_norm = create_sequences(x_data_norm, sequence_length, output_size)
     x_train, y_train = create_sequences(x_data, sequence_length, output_size)
 
-    predicted_output_norm, _ = model.forward(x_train_norm[selected_sequence])
-    predicted_output = denormalize_data(predicted_output_norm, feature_min, feature_max).reshape(-1)
+    window = x_train_norm[selected_sequence]
+    y_actual = []
+    predictions_norm = []
+    for i in range(0, prediction_days):
+        y_actual.append(y_train[selected_sequence + i])
+    for i in range(prediction_days):
+        predicted_output, _ = model.forward(window)
+        predictions_norm.append(predicted_output[0][0])
+        window = np.roll(window, -1)
+        window[-1] = predicted_output[0][0]
+    predicted_output = denormalize_data(np.array(predictions_norm), feature_min, feature_max).reshape(-1)
 
-    plt.plot(y_train[selected_sequence], label='Actual Price')
+    plt.plot(y_actual, label='Actual Price')
     plt.plot(predicted_output, label='Predicted Price')
     plt.ylim(ymin=0)
     plt.xlabel('Time')
