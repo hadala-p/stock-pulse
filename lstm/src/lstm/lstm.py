@@ -27,7 +27,6 @@ class LSTMModel:
         hidden_states = [np.zeros((hidden_size, 1)) for hidden_size in self.hidden_sizes]
         cell_states = [np.zeros((hidden_size, 1)) for hidden_size in self.hidden_sizes]
 
-        # Process the input sequence through the stacked LSTM layers
         for t in range(self.sequence_length):
             input_timestep = x[t].reshape(self.input_size, 1)
             for i, lstm_layer in enumerate(self.lstm_layers):
@@ -36,7 +35,6 @@ class LSTMModel:
                 )
                 hidden_states[i] = input_timestep
 
-        # Compute output using the final hidden state of the last LSTM layer
         output = np.dot(self.output_weights, hidden_states[-1]) + self.output_bias
         return output, hidden_states
 
@@ -52,28 +50,23 @@ class LSTMModel:
                 true_output = y_train[i].reshape(-1, 1)
                 predicted_output, hidden_states = self.forward(input_sequence, training=True)
 
-                # Compute Mean Squared Error Loss
                 loss = np.mean((predicted_output - true_output) ** 2)
                 if index % 50 == 0:
                     print(f"[Training] {index}/{len(random_data_indexes)} Loss: {loss}")
                 epoch_loss += loss
 
-                # Compute gradients for backpropagation
                 output_gradient = 2 * (predicted_output - true_output) / true_output.size
                 gradient_output_weights = np.dot(output_gradient, hidden_states[-1].T)
                 gradient_output_bias = output_gradient
 
-                # Gradients for hidden and cell states of the last LSTM layer
                 next_hidden_gradient = np.dot(self.output_weights.T, output_gradient)
                 next_cell_gradient = np.zeros_like(next_hidden_gradient)
 
-                # Backpropagate through LSTM layers in reverse order
                 lstm_gradients = []
                 for i in reversed(range(len(self.lstm_layers))):
                     lstm_layer = self.lstm_layers[i]
                     lstm_grad = lstm_layer.backward(next_hidden_gradient, next_cell_gradient)
                     lstm_gradients.append(lstm_grad)
-                    # Unpack the gradients returned by the backward method
                     (
                         gradient_forget_gate_weights, gradient_forget_gate_bias,
                         gradient_input_gate_weights, gradient_input_gate_bias,
@@ -82,13 +75,10 @@ class LSTMModel:
                         hidden_gradient, cell_gradient
                     ) = lstm_grad
 
-                    # Update `next_hidden_gradient` for the previous layer
                     next_hidden_gradient = hidden_gradient
 
-                    # Update `next_cell_gradient` for the previous layer
                     next_cell_gradient = cell_gradient
 
-                # Update parameters using optimizer
                 params = [self.output_weights, self.output_bias]
                 grads = [gradient_output_weights, gradient_output_bias]
                 for layer, layer_grads in zip(self.lstm_layers, reversed(lstm_gradients)):

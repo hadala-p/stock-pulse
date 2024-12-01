@@ -10,7 +10,6 @@ class LSTMLayer:
         self.hidden_size = hidden_size
         self.dropout_rate = dropout_rate
 
-        # Weights and biases for gates
         self.forget_gate_weights = np.random.randn(hidden_size, input_size + hidden_size) * 0.01
         self.forget_gate_bias = np.zeros((hidden_size, 1))
         self.input_gate_weights = np.random.randn(hidden_size, input_size + hidden_size) * 0.01
@@ -63,32 +62,25 @@ class LSTMLayer:
                 candidate_cell, current_cell, previous_cell, previous_hidden
             ) = self.cache[t]
 
-            # Gradients for hidden state
             hidden_gradient = next_hidden_state_gradient + previous_hidden_gradient
             cell_gradient = next_cell_state_gradient + previous_cell_gradient
 
-            # Ensure consistent shapes for broadcasting
             if current_cell.shape[1] != hidden_gradient.shape[1]:
                 current_cell = np.repeat(current_cell, hidden_gradient.shape[1], axis=1)
 
-            # Gradients for output gate
             output_gradient = hidden_gradient * tanh(current_cell)
             output_raw_gradient = output_gradient * output_output * (1 - output_output)
 
-            # Gradients for cell state
             cell_gradient_t = cell_gradient + hidden_gradient * output_output * (1 - tanh(current_cell) ** 2)
             cell_candidate_gradient = cell_gradient_t * input_output
             cell_candidate_raw_gradient = cell_candidate_gradient * (1 - candidate_cell ** 2)
 
-            # Gradients for input gate
             input_gradient = cell_gradient_t * candidate_cell
             input_raw_gradient = input_gradient * input_output * (1 - input_output)
 
-            # Gradients for forget gate
             forget_gradient = cell_gradient_t * previous_cell
             forget_raw_gradient = forget_gradient * forget_output * (1 - forget_output)
 
-            # Update weight and bias gradients
             gradient_forget_gate_weights += np.dot(forget_raw_gradient, concatenated_input.T)
             gradient_forget_gate_bias += forget_raw_gradient
             gradient_input_gate_weights += np.dot(input_raw_gradient, concatenated_input.T)
@@ -98,7 +90,6 @@ class LSTMLayer:
             gradient_cell_state_weights += np.dot(cell_candidate_raw_gradient, concatenated_input.T)
             gradient_cell_state_bias += cell_candidate_raw_gradient
 
-            # Concatenated gradient for backpropagation
             concatenated_gradient = (
                 np.dot(self.forget_gate_weights.T, forget_raw_gradient) +
                 np.dot(self.input_gate_weights.T, input_raw_gradient) +
