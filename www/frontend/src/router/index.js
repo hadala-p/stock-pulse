@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import HomePage from '../components/HomePage.vue';
-import LoginPage from '../components/LoginPage.vue';
-import RegisterPage from '../components/RegisterPage.vue';
-import PredictionsPage from '../components/PredictionsPage.vue';
-import FavoritesPage from '../components/FavoritesPage.vue';
-import UserProfile from '../components/UserProfile.vue';
+import HomePage from '../views/HomePage.vue';
+import LoginPage from '../views/LoginPage.vue';
+import RegisterPage from '../views/RegisterPage.vue';
+import PredictionsPage from '../views/PredictionsPage.vue';
+import FavoritesPage from '../views/FavoritesPage.vue';
+import UserProfile from '../views/UserProfile.vue';
 
 const routes = [
     { path: '/', name: 'HomePage', component: HomePage },

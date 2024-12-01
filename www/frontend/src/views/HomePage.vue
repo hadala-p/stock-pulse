@@ -1,0 +1,155 @@
+<template>
+  <div class="container-fluid content-offset">
+    <div class="row">
+      <div
+          class="col-md-4"
+          v-for="(stock, index) in stocks"
+          :key="stock.id"
+      >
+        <StockCard
+            :stock="stock"
+            :index="index"
+            :is-starred="starredIndexes.includes(index)"
+            :is-animating="animatingIndexes.includes(index)"
+            @toggle-star="toggleStar"
+            @open-modal="openModal"
+        />
+      </div>
+      <div class="col-md-4">
+        <div
+            class="card mb-4 p-3 position-relative add-card"
+            @click="openAddModal"
+            style="cursor: pointer;"
+        >
+          <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <i class="fas fa-plus fa-3x mb-3"></i>
+            <h5 class="card-title text-center">Add new prediction</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <StockModal
+        v-if="showStockModal"
+        :stock="selectedStock"
+        @close="closeStockModal"
+    />
+    <AddPredictionModal
+        v-if="showAddModal"
+        @close="closeAddModal"
+        @new-stock="addNewStock"
+    />
+  </div>
+</template>
+
+<script>
+import { ref } from 'vue';
+import StockCard from '../components/StockCard.vue';
+import StockModal from '../components/StockModal.vue';
+import AddPredictionModal from '../components/AddPredictionModal.vue';
+
+export default {
+  name: 'App',
+  components: {
+    StockCard,
+    StockModal,
+    AddPredictionModal,
+  },
+  setup() {
+    const stocks = ref([
+      { id: 'AAPL', name: 'Apple Inc.', change: 5.2 },
+      { id: 'GOOGL', name: 'Alphabet Inc.', change: -3.1 },
+      { id: 'MSFT', name: 'Microsoft Corp.', change: 1.8 },
+      { id: 'NVDA', name: 'NVIDIA Corporation', change: 8.5 },
+      { id: 'TSLA', name: 'Tesla Inc.', change: 6.5 },
+      { id: 'AMZN', name: 'Amazon.com Inc.', change: -2.4 },
+      { id: 'NFLX', name: 'Netflix Inc.', change: 4.1 },
+    ]);
+
+    const starredIndexes = ref([]);
+    const animatingIndexes = ref([]);
+    const selectedStock = ref(null);
+    const showStockModal = ref(false);
+    const showAddModal = ref(false);
+
+    const toggleStar = (index) => {
+      if (starredIndexes.value.includes(index)) {
+        starredIndexes.value = starredIndexes.value.filter((i) => i !== index);
+      } else {
+        starredIndexes.value.push(index);
+      }
+      animatingIndexes.value.push(index);
+      setTimeout(() => {
+        animatingIndexes.value = animatingIndexes.value.filter(
+            (i) => i !== index
+        );
+      }, 300);
+    };
+
+    const openModal = (stock) => {
+      selectedStock.value = stock;
+      showStockModal.value = true;
+    };
+
+    const closeStockModal = () => {
+      showStockModal.value = false;
+      selectedStock.value = null;
+    };
+
+    const openAddModal = () => {
+      showAddModal.value = true;
+    };
+
+    const closeAddModal = () => {
+      showAddModal.value = false;
+    };
+
+    const addNewStock = (newStock) => {
+      stocks.value.push(newStock);
+    };
+
+    return {
+      stocks,
+      starredIndexes,
+      animatingIndexes,
+      selectedStock,
+      showStockModal,
+      showAddModal,
+      toggleStar,
+      openModal,
+      closeStockModal,
+      openAddModal,
+      closeAddModal,
+      addNewStock,
+    };
+  },
+};
+</script>
+
+<style scoped>
+
+.card {
+  position: relative;
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  min-height: 25rem;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.add-card {
+  background-color: #f8f9fa;
+  border: 0.1rem dashed #ced4da;
+}
+
+.add-card:hover {
+  background-color: #e2e6ea;
+}
+
+.add-card .card-body {
+  padding: 1.5rem;
+}
+</style>
