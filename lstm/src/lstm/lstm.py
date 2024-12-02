@@ -43,9 +43,7 @@ class LSTMModel:
             epoch_loss = 0
             random_data_indexes = list(range(len(x_train)))
             random.shuffle(random_data_indexes)
-            index = 0
-            for i in random_data_indexes:
-                index +=1
+            for index, i in enumerate(random_data_indexes, start=1):
                 input_sequence = x_train[i]
                 true_output = y_train[i].reshape(-1, 1)
                 predicted_output, hidden_states = self.forward(input_sequence, training=True)

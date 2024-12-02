@@ -5,6 +5,7 @@ from lstm.optimizer import Adam
 import matplotlib.pyplot as plt
 from lstm.model_saver import load_model, model_exists
 from numpy.typing import NDArray
+from typing import Tuple
 
 train_bp = Blueprint('train', __name__)
 
@@ -17,7 +18,7 @@ feature_min_value = 30
 feature_max_value = 250
 model_file_name = 'model.sp'
 
-def initialize_model(sequence_length):
+def initialize_model(sequence_length: int) -> LSTMModel:
     optimizer = Adam(learning_rate=0.001)
     return LSTMModel(features_amount, hidden_sizes, output_size, sequence_length, optimizer)
 
@@ -28,10 +29,10 @@ if model_exists(model_file_name):
 else:
     print(f"Model file {model_file_name} not found. Initializing a new model.")
 
-def normalize_data(data: NDArray[np.float64], feature_min, feature_max) -> NDArray[np.float64]:
+def normalize_data(data: NDArray[np.float64], feature_min: float, feature_max: float) -> NDArray[np.float64]:
     return (data - feature_min) / (feature_max - feature_min + 1e-8)
 
-def denormalize_data(data: NDArray[np.float64], feature_min, feature_max) -> NDArray[np.float64]:
+def denormalize_data(data: NDArray[np.float64], feature_min: float, feature_max: float) -> NDArray[np.float64]:
     return data * (feature_max - feature_min + 1e-8) + feature_min
 
 @train_bp.route('/train', methods=['POST'])
@@ -102,11 +103,11 @@ def predict():
 
     return jsonify({
         "status": "Prediction completed successfully.",
-        "data":predicted_output.tolist(),
+        "data": predicted_output.tolist(),
         "averageLoss": feature_max_value * model.best_loss
     })
 
-def create_sequences(data, sequence_length, prediction_steps = 1):
+def create_sequences(data: NDArray[np.float64], sequence_length: int, prediction_steps: int = 1) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     x, y = [], []
     for i in range(len(data) - sequence_length - prediction_steps + 1):
         x.append(data[i:i + sequence_length])
