@@ -19,7 +19,7 @@ class TestLSTMModel(unittest.TestCase):
             hidden_size=self.hidden_size,
             output_size=self.output_size,
             sequence_length=self.sequence_length,
-            optimizer=self.optimizer
+            optimizer=self.optimizer,
         )
 
     def test_forward_output_shape(self):
@@ -36,7 +36,9 @@ class TestLSTMModel(unittest.TestCase):
         self.assertEqual(output.shape, (self.output_size, 1))
 
     def test_train_loss_decreases(self):
-        x_train = [np.random.randn(self.sequence_length, self.input_size) for _ in range(10)]
+        x_train = [
+            np.random.randn(self.sequence_length, self.input_size) for _ in range(10)
+        ]
         y_train = [np.random.randn(self.output_size, 1) for _ in range(10)]
 
         initial_loss = self._calculate_epoch_loss(x_train, y_train)
@@ -45,7 +47,11 @@ class TestLSTMModel(unittest.TestCase):
 
         final_loss = self._calculate_epoch_loss(x_train, y_train)
 
-        self.assertLess(final_loss, initial_loss, "Final loss should be lower than initial loss after training")
+        self.assertLess(
+            final_loss,
+            initial_loss,
+            "Final loss should be lower than initial loss after training",
+        )
 
     def _calculate_epoch_loss(self, x_data, y_data):
         epoch_loss = 0
@@ -83,8 +89,10 @@ class TestLSTMModel(unittest.TestCase):
 
         self.model.optimizer.update(
             [self.model.output_weights, self.model.output_bias],
-            [gradient_output_weights, gradient_output_bias]
+            [gradient_output_weights, gradient_output_bias],
         )
 
-        self.assertFalse(np.array_equal(self.model.output_weights, initial_output_weights))
+        self.assertFalse(
+            np.array_equal(self.model.output_weights, initial_output_weights)
+        )
         self.assertFalse(np.array_equal(self.model.output_bias, initial_output_bias))
