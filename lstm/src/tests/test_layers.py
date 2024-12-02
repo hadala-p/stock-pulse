@@ -34,10 +34,22 @@ class TestLSTMLayer(TestCase):
         h, c = self.layer.forward(x, h_prev, c_prev)
         concatenated_input = np.vstack((h_prev, x))
 
-        f_gate = sigmoid(np.dot(self.layer.forget_gate_weights, concatenated_input) + self.layer.forget_gate_bias)
-        i_gate = sigmoid(np.dot(self.layer.input_gate_weights, concatenated_input) + self.layer.input_gate_bias)
-        o_gate = sigmoid(np.dot(self.layer.output_gate_weights, concatenated_input) + self.layer.output_gate_bias)
-        candidate_c = tanh(np.dot(self.layer.cell_state_weights, concatenated_input) + self.layer.cell_state_bias)
+        f_gate = sigmoid(
+            np.dot(self.layer.forget_gate_weights, concatenated_input)
+            + self.layer.forget_gate_bias
+        )
+        i_gate = sigmoid(
+            np.dot(self.layer.input_gate_weights, concatenated_input)
+            + self.layer.input_gate_bias
+        )
+        o_gate = sigmoid(
+            np.dot(self.layer.output_gate_weights, concatenated_input)
+            + self.layer.output_gate_bias
+        )
+        candidate_c = tanh(
+            np.dot(self.layer.cell_state_weights, concatenated_input)
+            + self.layer.cell_state_bias
+        )
 
         expected_c = f_gate * c_prev + i_gate * candidate_c
         expected_h = o_gate * tanh(expected_c)
@@ -67,15 +79,25 @@ class TestLSTMLayer(TestCase):
 
         grads = self.layer.backward(d_next_h, d_next_c)
         grad_shapes = [
-            grads[0].shape, grads[1].shape, grads[2].shape, grads[3].shape,
-            grads[4].shape, grads[5].shape, grads[6].shape, grads[7].shape
+            grads[0].shape,
+            grads[1].shape,
+            grads[2].shape,
+            grads[3].shape,
+            grads[4].shape,
+            grads[5].shape,
+            grads[6].shape,
+            grads[7].shape,
         ]
 
         expected_shapes = [
-            (self.hidden_size, self.input_size + self.hidden_size), (self.hidden_size, 1),
-            (self.hidden_size, self.input_size + self.hidden_size), (self.hidden_size, 1),
-            (self.hidden_size, self.input_size + self.hidden_size), (self.hidden_size, 1),
-            (self.hidden_size, self.input_size + self.hidden_size), (self.hidden_size, 1)
+            (self.hidden_size, self.input_size + self.hidden_size),
+            (self.hidden_size, 1),
+            (self.hidden_size, self.input_size + self.hidden_size),
+            (self.hidden_size, 1),
+            (self.hidden_size, self.input_size + self.hidden_size),
+            (self.hidden_size, 1),
+            (self.hidden_size, self.input_size + self.hidden_size),
+            (self.hidden_size, 1),
         ]
 
         for grad_shape, expected_shape in zip(grad_shapes, expected_shapes):

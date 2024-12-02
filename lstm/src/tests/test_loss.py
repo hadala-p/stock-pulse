@@ -45,6 +45,6 @@ class TestCrossEntropyLoss(TestCase):
         actual = np.array([[1, 0], [0, 1]])
         gradient = CrossEntropyLoss.backward(predicted, actual)
         epsilon = 1e-12
-        clipped_predicted = np.clip(predicted, epsilon, 1. - epsilon)
+        clipped_predicted = np.clip(predicted, epsilon, 1.0 - epsilon)
         expected_gradient = -(actual / clipped_predicted) / actual.shape[0]
         np.testing.assert_array_almost_equal(gradient, expected_gradient, decimal=5)
