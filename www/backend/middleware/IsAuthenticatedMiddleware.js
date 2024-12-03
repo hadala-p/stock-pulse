@@ -5,7 +5,6 @@ module.exports = {
     check: (req, res, next) => {
         const token = req.headers.authorization;
         const user = jwt.decode(token);
-        console.log(user)
         if (user === null || user.exp < Date.now() / 1000) 
         {
             return res.status(401).json({

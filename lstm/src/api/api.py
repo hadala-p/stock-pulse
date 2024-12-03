@@ -83,7 +83,7 @@ def predict():
     if data_length < input_size + prediction_offset:
         return jsonify({"error": "Not enough data points for prediction."}), 400
 
-    x_data = np.flip(np.array([float(item) for item in input_data]))
+    x_data = np.array([float(item) for item in input_data])
     x_data_norm = normalize_data(x_data, feature_min_value, feature_max_value).reshape(
         -1
     )
@@ -123,7 +123,7 @@ def predict():
         {
             "status": "Prediction completed successfully.",
             "data": predicted_output.tolist(),
-            "averageLoss": feature_max_value * model.best_loss,
+            "averageLoss": feature_max_value * np.sqrt(model.best_loss),
         }
     )
 
