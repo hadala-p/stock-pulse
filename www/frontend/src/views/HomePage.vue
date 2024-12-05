@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
@@ -56,6 +57,7 @@ export default {
     AddPredictionModal,
   },
   setup() {
+    
     const stocks = ref([
       { id: 'AAPL', name: 'Apple Inc.', change: 5.2 },
       { id: 'GOOGL', name: 'Alphabet Inc.', change: -3.1 },
@@ -66,6 +68,7 @@ export default {
       { id: 'NFLX', name: 'Netflix Inc.', change: 4.1 },
     ]);
 
+    const router = useRouter();
     const starredIndexes = ref([]);
     const animatingIndexes = ref([]);
     const selectedStock = ref(null);
@@ -107,6 +110,24 @@ export default {
     const addNewStock = (newStock) => {
       stocks.value.push(newStock);
     };
+
+    const validateToken = (token) => {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // Convert to milliseconds
+        return Date.now() < exp;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    onMounted(() => {
+      const token = localStorage.getItem('token');
+      if (!token || !validateToken(token)) {
+        localStorage.removeItem('token');
+        router.push('/login');
+      }
+    });
 
     return {
       stocks,

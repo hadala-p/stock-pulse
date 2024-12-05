@@ -43,7 +43,8 @@ module.exports = {
         const token = req.headers.authorization;
         const user = jwt.decode(token);
         const { companyName, baseData, predictionStartOffset, predictionDays } = req.body;
-
+        baseData.reverse();
+        
         axios({
             method: 'post',
             url: predictURL,

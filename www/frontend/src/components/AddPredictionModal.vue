@@ -2,17 +2,18 @@
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add New Prediction</h5>
+        <h5 class="modal-title">Predict new data</h5>
         <button type="button" class="btn-close" @click="close"></button>
       </div>
       <div class="modal-body">
+        <input class="form-control" v-model="companyName" placeholder="Company name" /><br/>
         <div
-            class="drag-drop-area"
+            :class="['drag-drop-area', { 'file-dropped': fileDropped }]"
             @dragover.prevent
             @drop.prevent="handleFileDrop"
             @click="triggerFileInput"
         >
-          <p>Drag and drop the file here or click to select a file</p>
+          <p :class="{ 'file-dropped': fileDropped }">Drag and drop the file here or click to select a file</p>
           <input
               type="file"
               ref="fileInputRef"
@@ -21,7 +22,11 @@
           />
         </div>
       </div>
+      <br/>
       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" @click="upload">
+          Upload
+        </button>
         <button type="button" class="btn btn-secondary" @click="close">
           Close
         </button>
@@ -32,18 +37,26 @@
 
 <script>
 import { ref } from 'vue';
+const axios = require('axios');
+const apiURL = 'http://localhost:3000';
 
 export default {
   name: 'AddPredictionModal',
   emits: ['close', 'new-stock'],
   setup(props, { emit }) {
     const fileInputRef = ref(null);
+    const companyName = ref('');
+    const file = ref(null);
+    const fileDropped = ref(false);
 
     const triggerFileInput = () => {
       fileInputRef.value.click();
     };
 
     const handleFileDrop = (event) => {
+      if (fileDropped.value === true) {
+        return;
+      }
       const files = event.dataTransfer.files;
       handleFile(files[0]);
     };
@@ -64,34 +77,69 @@ export default {
         }
       };
       reader.readAsText(file);
+      file.value = file;
     };
 
     const validateFile = (json) => {
       if (
           typeof json === 'object' &&
           json !== null &&
-          'companyName' in json &&
-          'baseData' in json &&
-          Array.isArray(json.baseData)
+          Array.isArray(json)
       ) {
-        const newStock = {
-          id: json.companyName,
-          name: json.companyName,
-          change: 0,
-          image: null,
-          baseData: json.baseData,
-        };
-        emit('new-stock', newStock);
-        close();
+        fileDropped.value = true; 
+        file.value = json;
       } else {
-        alert(
-            'Invalid format. The JSON file should contain the keys "companyName" (string) and "baseData" (array).'
-        );
+        fileDropped.value = false;
+        alert('Invalid format. The JSON file should contain the data array');
       }
     };
 
     const close = () => {
       emit('close');
+    };
+
+    const upload = () => 
+    {
+      if (file.value === null) {
+        alert('Please select a file.');
+        return;
+      }
+      
+      if (companyName.value === '') {
+        alert('Please enter the company name.');
+        return;
+      }
+
+      let jsonToUpload = {
+        companyName: companyName.value,
+        predictionStartOffset: 0,
+        predictionDays: 30,
+        baseData: file.value,
+      };
+
+      axios({
+            method: 'post',
+            url: `${apiURL}/prediction/post`,
+            data: jsonToUpload,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${localStorage.getItem('token')}`
+            }
+        }).then(response => {
+            if (response.status !== 200) 
+            {
+              close();
+              alert('Error uploading prediction');
+              return;
+            }
+            
+            close();
+            alert('Prediction uploaded successfully');
+        }).catch((err) => {
+          close();
+          alert(`Error uploading prediction: ${err}`);
+          return;
+        });
     };
 
     return {
@@ -100,6 +148,9 @@ export default {
       handleFileDrop,
       handleFileChange,
       close,
+      upload,
+      companyName,
+      fileDropped,
     };
   },
 };
@@ -172,5 +223,13 @@ export default {
   margin: 0;
   font-size: 1.2rem;
   color: #6c757d;
+}
+
+.drag-drop-area.file-dropped {
+  background-color: #b5f3c4;
+}
+.drag-drop-area.file-dropped>p {
+  transition: 0.5s;
+  font-size: 0rem;
 }
 </style>
