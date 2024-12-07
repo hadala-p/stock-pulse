@@ -37,8 +37,8 @@
 
 <script>
 import { ref } from 'vue';
+const apiURL = process.env.VUE_APP_API_URL;
 const axios = require('axios');
-const apiURL = 'http://localhost:3000';
 
 export default {
   name: 'AddPredictionModal',
@@ -134,7 +134,7 @@ export default {
             }
             
             close();
-            alert('Prediction uploaded successfully');
+            emit('new-stock');
         }).catch((err) => {
           close();
           alert(`Error uploading prediction: ${err}`);

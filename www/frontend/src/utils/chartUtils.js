@@ -8,7 +8,7 @@ import {
     CategoryScale,
     Filler,
 } from 'chart.js';
-
+import zoomPlugin from 'chartjs-plugin-zoom';
 Chart.register(
     LineController,
     LineElement,
@@ -16,22 +16,52 @@ Chart.register(
     LinearScale,
     Title,
     CategoryScale,
-    Filler
+    Filler,
+    zoomPlugin
 );
 
-export function createChart(canvas, stock, isModal = false) {
+export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) {
+    if (numOfPastDays < 0) 
+    {
+        numOfPastDays = Math.min(stock.baseData.length, 720)
+    }
+    const lerp = (a, b, t) => a + (b - a) * t;
     const ctx = canvas.getContext('2d');
-    const data = stock.baseData || generateRandomData();
-    const labels = data.map((_, index) => `Day ${index + 1}`);
+    let baseData = stock.baseData;
+    if (numOfPastDays > 0) 
+    {
+        baseData = baseData.slice(-numOfPastDays);
+    }
+
+    const data = baseData.concat(new Array(stock.predictedData.length).fill(null));
+    const lastBaseDataValue = Number(stock.baseData[stock.baseData.length - 1]);
+    const predictedDataRaw = stock.predictedData;
+    let predictedDataBlended = []
+    for (let i = 0; i < predictedDataRaw.length; i++) {
+        let t = i < 10 ? i / 10.0 : 1; 
+
+        const value = lerp(lastBaseDataValue, predictedDataRaw[i], t);
+        predictedDataBlended.push(value);
+    }
+
+    const predictedData = new Array(baseData.length - 1).fill(null).concat(predictedDataBlended);
+    const labels = baseData.map((_, index) => `Day ${index - baseData.length}`).concat(predictedDataRaw.map((_, index) => `Day ${index + 1}`));
+    const stockChange = stock.predictedData[stock.predictedData.length - 1] - lastBaseDataValue > 0;
+    const maxValue = Math.max(...baseData, ...predictedDataBlended);
     const datasets = [
         {
             label: `${stock.name} Price`,
             data: data,
-            borderColor: stock.change >= 0 ? 'green' : 'red',
-            backgroundColor:
-                stock.change >= 0
-                    ? 'rgba(0, 255, 0, 0.2)'
-                    : 'rgba(255, 0, 0, 0.2)',
+            borderColor: 'rgba(0, 0, 0, 0.2)',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            fill: true,
+            pointRadius: 0,
+        },
+        {
+            label: `${stock.name} Predicted Price`,
+            data: predictedData,
+            borderColor: stockChange ? 'green' : 'red',
+            backgroundColor: stockChange ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
             fill: true,
             pointRadius: 0,
         },
@@ -45,12 +75,30 @@ export function createChart(canvas, stock, isModal = false) {
         },
         options: {
             responsive: true,
+            animation: {
+                duration: (isModal ? 0 : 1000),
+            },
             plugins: {
                 legend: {
                     display: isModal,
                 },
                 title: {
                     display: false,
+                },
+                zoom: {
+                    pan: {
+                        enabled: isModal,
+                        mode: 'x',
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: isModal,
+                        },
+                        pinch: {
+                            enabled: isModal,
+                        },
+                        mode: 'x',
+                    },
                 },
             },
             elements: {
@@ -61,16 +109,15 @@ export function createChart(canvas, stock, isModal = false) {
             scales: {
                 x: {
                     display: isModal,
+                    min: labels.length - (isModal ? 150 : 60),
+                    max: labels.length,
                 },
                 y: {
                     display: isModal,
+                    beginAtZero: isModal,
+                    suggestedMax: maxValue,
                 },
             },
         },
     });
-}
-
-function generateRandomData() {
-    const totalDays = 30;
-    return Array.from({ length: totalDays }, () => Math.random() * 100 + 100);
 }

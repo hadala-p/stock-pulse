@@ -44,7 +44,7 @@ export default {
 
     onMounted(() => {
       if (modalChartRef.value) {
-        createChart(modalChartRef.value, props.stock, true);
+        createChart(modalChartRef.value, props.stock, true, -1);
       }
     });
 

@@ -49,6 +49,13 @@ import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
 
+const apiURL = process.env.VUE_APP_API_URL;
+const axios = require('axios');
+
+if (!apiURL) {
+  alert('API_URL is not set. Please set it in the .env file');
+}
+
 export default {
   name: 'App',
   components: {
@@ -57,17 +64,56 @@ export default {
     AddPredictionModal,
   },
   setup() {
-    
-    const stocks = ref([
-      { id: 'AAPL', name: 'Apple Inc.', change: 5.2 },
-      { id: 'GOOGL', name: 'Alphabet Inc.', change: -3.1 },
-      { id: 'MSFT', name: 'Microsoft Corp.', change: 1.8 },
-      { id: 'NVDA', name: 'NVIDIA Corporation', change: 8.5 },
-      { id: 'TSLA', name: 'Tesla Inc.', change: 6.5 },
-      { id: 'AMZN', name: 'Amazon.com Inc.', change: -2.4 },
-      { id: 'NFLX', name: 'Netflix Inc.', change: 4.1 },
-    ]);
+    const getStockPrices = () => {
+      axios({
+      method: 'get',
+      url: `${apiURL}/prediction/my`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem('token')}`
+      }
+      }).then(response => {
+          if (response.status !== 200) 
+          {
+            alert('Error loading predictions');
+            return;
+          }
 
+          response.data.result.forEach((stock) => {
+            stocks.value.push(
+              {
+                id: stock.id,
+                name: stock.companyName,
+                averageLoss: stock.averageLoss,
+                predictionStartIndex: stock.predictionStartIndex,
+                baseData: stock.baseData.reverse(),
+                predictedData: stock.predictedData,
+              });
+          });
+
+      }).catch((err) => {
+        close();
+        alert(`Failed to get predictions: ${err}`);
+        return;
+      });
+    };
+
+    const validateToken = (token) => {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // Convert to milliseconds
+        return Date.now() < exp;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const token = localStorage.getItem('token');
+    if (token && validateToken(token)) {
+      getStockPrices();
+    }
+
+    const stocks = ref([]);
     const router = useRouter();
     const starredIndexes = ref([]);
     const animatingIndexes = ref([]);
@@ -107,18 +153,8 @@ export default {
       showAddModal.value = false;
     };
 
-    const addNewStock = (newStock) => {
-      stocks.value.push(newStock);
-    };
-
-    const validateToken = (token) => {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const exp = payload.exp * 1000; // Convert to milliseconds
-        return Date.now() < exp;
-      } catch (e) {
-        return false;
-      }
+    const addNewStock = () => {
+      router.go();
     };
 
     onMounted(() => {
