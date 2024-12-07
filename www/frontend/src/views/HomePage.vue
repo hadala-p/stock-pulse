@@ -80,14 +80,17 @@ export default {
           }
 
           response.data.result.forEach((stock) => {
+            let baseData = stock.baseData.reverse();
+            let stockChange = Number((stock.predictedData[stock.predictedData.length - 1] - baseData[baseData.length - 1]) / baseData[baseData.length - 1] * 100);
             stocks.value.push(
               {
                 id: stock.id,
                 name: stock.companyName,
                 averageLoss: stock.averageLoss,
                 predictionStartIndex: stock.predictionStartIndex,
-                baseData: stock.baseData.reverse(),
+                baseData: baseData,
                 predictedData: stock.predictedData,
+                change: stockChange,
               });
           });
 
