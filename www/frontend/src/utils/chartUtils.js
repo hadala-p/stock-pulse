@@ -7,6 +7,7 @@ import {
     Title,
     CategoryScale,
     Filler,
+    Tooltip,
 } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
 Chart.register(
@@ -17,6 +18,7 @@ Chart.register(
     Title,
     CategoryScale,
     Filler,
+    Tooltip,
     zoomPlugin
 );
 
@@ -32,14 +34,13 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
     {
         baseData = baseData.slice(-numOfPastDays);
     }
-
+    baseData = baseData.map((value) => Number(value));
     const data = baseData.concat(new Array(stock.predictedData.length).fill(null));
     const lastBaseDataValue = Number(stock.baseData[stock.baseData.length - 1]);
-    const predictedDataRaw = stock.predictedData;
+    const predictedDataRaw = stock.predictedData.map((value) => Number(value));
     let predictedDataBlended = []
     for (let i = 0; i < predictedDataRaw.length; i++) {
         let t = i < 10 ? i / 10.0 : 1; 
-
         const value = lerp(lastBaseDataValue, predictedDataRaw[i], t);
         predictedDataBlended.push(value);
     }
@@ -50,7 +51,7 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
     const maxValue = Math.max(...baseData, ...predictedDataBlended);
     const datasets = [
         {
-            label: `${stock.name} Price`,
+            label: `Price`,
             data: data,
             borderColor: 'rgba(0, 0, 0, 0.2)',
             backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -58,7 +59,7 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
             pointRadius: 0,
         },
         {
-            label: `${stock.name} Predicted Price`,
+            label: `Predicted price`,
             data: predictedData,
             borderColor: stockChange ? 'green' : 'red',
             backgroundColor: stockChange ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
@@ -100,6 +101,23 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
                         mode: 'x',
                     },
                 },
+                tooltip: {
+                    enabled: true,
+                    mode: 'nearest',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += `$ ${context.parsed.y.toFixed(2)}`;
+                            }
+                            return label;
+                        }
+                    }
+                }
             },
             elements: {
                 line: {
@@ -116,6 +134,11 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
                     display: isModal,
                     beginAtZero: isModal,
                     suggestedMax: maxValue,
+                    ticks: {
+                        callback: function(value) {
+                            return `$ ${value}`;
+                        }
+                    }
                 },
             },
         },

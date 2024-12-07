@@ -77,6 +77,11 @@ def predict():
     prediction_days_amount = request_data["days"]
     input_data = request_data["data"]
     show_plot = request_data["showPlot"]
+    flip_data = request_data.get("flipData")
+
+    if flip_data:
+        input_data = np.flip(input_data)
+
     print(f"Received prediction request with: {len(input_data)} time points")
 
     data_length = len(input_data)
