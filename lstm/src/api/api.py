@@ -14,8 +14,6 @@ input_size = 60
 output_size = 1
 hidden_sizes = [128, 128]
 training_epochs = 200
-feature_min_value = 30
-feature_max_value = 250
 model_file_name = "model.sp"
 
 
@@ -57,7 +55,8 @@ def train():
         print(f"Company data: {len(company_data)} entries")
         x_data = np.array([float(item) for item in company_data])
         x_data = np.flip(x_data)
-        x_data_norm = normalize_data(x_data, feature_min_value, feature_max_value)
+        x_data_norm = np.diff(x_data) / x_data[:-1]
+        x_data_norm = normalize_data(x_data_norm, np.min(x_data_norm), np.max(x_data_norm))
         x_data_norm = x_data_norm.reshape(-1)
         x_train, y_train = create_sequences(x_data_norm, input_size, output_size)
         for x_train_value, y_train_value in zip(x_train, y_train):
@@ -89,13 +88,14 @@ def predict():
         return jsonify({"error": "Not enough data points for prediction."}), 400
 
     x_data = np.array([float(item) for item in input_data])
-    x_data_norm = normalize_data(x_data, feature_min_value, feature_max_value).reshape(
-        -1
-    )
+    x_data_norm = np.diff(x_data) / x_data[:-1]
+    feature_min_value = np.min(x_data_norm)
+    feature_max_value = np.max(x_data_norm)
+    x_data_norm = normalize_data(x_data_norm, feature_min_value, feature_max_value)
     x_train_norm, _ = create_sequences(x_data_norm, input_size, output_size)
     _, y_train = create_sequences(x_data, input_size, output_size)
 
-    input_window = x_train_norm[-prediction_offset]
+    input_window = x_train_norm[-(prediction_offset + 1)]
     y_actual = []
     predictions_norm = []
     for i in range(
@@ -109,13 +109,20 @@ def predict():
         predictions_norm.append(predicted_output_norm[0][0])
         input_window = np.roll(input_window, -1)
         input_window[-1] = predicted_output_norm[0][0]
-    predicted_output = denormalize_data(
-        np.array(predictions_norm), feature_min_value, feature_max_value
-    ).reshape(-1)
+    
+    np_predictions_norm = np.array(predictions_norm)
+    np_predictions = denormalize_data(np_predictions_norm, feature_min_value, feature_max_value)
+    predictions_list = np_predictions.tolist()
+    predicted_prices = [x_data[-(prediction_offset + 1)]]
+    for pct_change in predictions_list:
+        next_price = predicted_prices[-1] * (1 + pct_change)
+        predicted_prices.append(next_price)
+    predicted_prices = predicted_prices[1:]
+
 
     if show_plot:
         plt.plot(y_actual, label="Actual Price")
-        plt.plot(predicted_output, label="Predicted Price")
+        plt.plot(predicted_prices, label="Predicted Price")
         plt.ylim(ymin=0)
         plt.xlabel("Time")
         plt.ylabel("Stock Price")
@@ -127,7 +134,7 @@ def predict():
     return jsonify(
         {
             "status": "Prediction completed successfully.",
-            "data": predicted_output.tolist(),
+            "data": predicted_prices,
             "averageLoss": feature_max_value * np.sqrt(model.best_loss),
         }
     )
