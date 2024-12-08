@@ -102,7 +102,7 @@ export function createChart(canvas, stock, isModal = false, numOfPastDays = 30) 
                     },
                 },
                 tooltip: {
-                    enabled: true,
+                    enabled: isModal,
                     mode: 'nearest',
                     intersect: false,
                     callbacks: {

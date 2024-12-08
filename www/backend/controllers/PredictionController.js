@@ -43,7 +43,6 @@ module.exports = {
         const token = req.headers.authorization;
         const user = jwt.decode(token);
         const { companyName, baseData, predictionStartOffset, predictionDays } = req.body;
-        baseData.reverse();
         
         axios({
             method: 'post',
@@ -52,7 +51,8 @@ module.exports = {
               days: predictionDays,
               offset: predictionStartOffset,
               showPlot: false,
-              data: baseData
+              data: baseData,
+              flipData: true,
             }
         }).then(response => {
             if (response.status !== 200) 
