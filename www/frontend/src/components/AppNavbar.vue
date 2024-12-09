@@ -1,38 +1,39 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-      <router-link class="navbar-brand d-flex align-items-center" to="/" aria-label="Home">
-        <img src="@/assets/logo.png" alt="Logo" class="me-2" width="30" height="30" />
+      <router-link aria-label="Home" class="navbar-brand d-flex align-items-center" to="/">
+        <img alt="Logo" class="me-2" height="30" src="@/assets/logo.png" width="30"/>
         <span>Stock-Pulse</span>
       </router-link>
 
       <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
           aria-controls="navbarContent"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          class="navbar-toggler"
+          data-bs-target="#navbarContent"
+          data-bs-toggle="collapse"
+          type="button"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarContent">
+      <div id="navbarContent" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto"></ul>
-
-        <form class="d-flex mx-auto my-2 my-lg-0" @submit.prevent="handleSearch">
+        <form v-if="route.name !== 'RegisterPage' && route.name !== 'LoginPage'" class="d-flex mx-auto my-2 my-lg-0"
+              @submit.prevent="handleSearch">
           <input
-              class="form-control search-input"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
               v-model="searchQuery"
+              aria-label="Search"
+              class="form-control search-input"
+              placeholder="Search"
+              type="search"
           />
           <button class="btn btn-outline-light" type="submit">
             <i class="fas fa-search"></i>
           </button>
         </form>
+
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <template v-if="isLoggedIn">
             <li class="nav-item">
@@ -41,7 +42,7 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <button @click="logout" class="btn btn-link nav-link text-white">
+              <button class="btn btn-link nav-link text-white" @click="logout">
                 <i class="fas fa-sign-out-alt me-1"></i> Logout
               </button>
             </li>
@@ -60,8 +61,8 @@
 </template>
 
 <script>
-import { inject } from 'vue';
-import { useRouter } from 'vue-router';
+import {inject} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 
 export default {
   name: 'AppNavbar',
@@ -70,6 +71,7 @@ export default {
     const updateLoginStatus = inject('updateLoginStatus');
     const nickname = inject('nickname');
     const router = useRouter();
+    const route = useRoute();
 
     const logout = () => {
       localStorage.removeItem('token');
@@ -82,6 +84,7 @@ export default {
       isLoggedIn,
       logout,
       nickname,
+      route,
     };
   },
   data() {
