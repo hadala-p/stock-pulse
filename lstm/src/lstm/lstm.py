@@ -25,7 +25,7 @@ class LSTMModel:
             LSTMLayer(
                 input_size if i == 0 else hidden_sizes[i - 1],
                 hidden_size,
-                dropout_rate=0.01,
+                dropout_rate=0.1,
             )
             for i, hidden_size in enumerate(hidden_sizes)
         ]
