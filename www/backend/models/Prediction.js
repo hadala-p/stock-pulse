@@ -10,6 +10,16 @@ const Prediction = {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    averageLoss: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+    },
+    predictionStartIndex: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
     baseData: {
         type: DataTypes.JSON,
         allowNull: false,
@@ -26,10 +36,12 @@ module.exports = {
         return this.model;
     },
 
-    postPrediction(owner, companyName, baseData, predictedData) {
+    postPrediction(owner, companyName, averageLoss, predictionStartIndex, baseData, predictedData) {
         return this.model.create({
             UserId: owner.id,
             companyName: companyName,
+            averageLoss: averageLoss,
+            predictionStartIndex: predictionStartIndex,
             baseData: baseData,
             predictedData: predictedData,
         });

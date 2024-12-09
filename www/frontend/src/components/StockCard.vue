@@ -20,14 +20,8 @@
 
     <div class="card-body position-relative">
       <h5 class="card-title">{{ stock.name }}</h5>
-      <p :class="stock.change >= 0 ? 'text-success' : 'text-danger'">
-        {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }}%
-      </p>
       <div class="chart-container position-relative">
         <canvas ref="chartRef" class="stock-chart"></canvas>
-        <div class="blur-overlay">
-          <div class="prediction-label">Prediction</div>
-        </div>
       </div>
     </div>
   </div>
@@ -80,16 +74,6 @@ export default {
 
 .chart-container {
   position: relative;
-}
-
-.blur-overlay {
-  position: absolute;
-  top: 0;
-  left: 60%;
-  width: 40%;
-  height: 100%;
-  backdrop-filter: blur(5px);
-  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .prediction-label {

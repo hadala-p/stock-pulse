@@ -7,9 +7,9 @@
       </div>
       <div class="modal-body">
         <p>
-          Current Change:
+          Predicted price change:
           <span :class="stock.change >= 0 ? 'text-success' : 'text-danger'">
-            {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }}%
+            {{ stock.change >= 0 ? '+' : '-' }}{{ stock.change.toFixed(2) }}%
           </span>
         </p>
         <img
@@ -44,7 +44,7 @@ export default {
 
     onMounted(() => {
       if (modalChartRef.value) {
-        createChart(modalChartRef.value, props.stock, true);
+        createChart(modalChartRef.value, props.stock, true, -1);
       }
     });
 
