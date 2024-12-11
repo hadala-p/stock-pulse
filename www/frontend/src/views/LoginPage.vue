@@ -51,7 +51,8 @@ export default {
 
     const handleSubmit = async () => {
       try {
-        const response = await axios.post('/auth/login', {
+        const backendUrl = process.env.VUE_APP_BACKEND_URL;
+        const response = await axios.post(`${backendUrl}/auth/login`, {
           email: email.value,
           password: password.value,
         });

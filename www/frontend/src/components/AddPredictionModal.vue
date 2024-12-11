@@ -37,7 +37,7 @@
 
 <script>
 import { ref } from 'vue';
-const apiURL = process.env.VUE_APP_API_URL;
+const apiURL = process.env.VUE_APP_BACKEND_URL;
 const axios = require('axios');
 
 export default {

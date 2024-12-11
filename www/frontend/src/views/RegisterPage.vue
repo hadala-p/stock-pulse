@@ -79,7 +79,8 @@ export default {
       }
 
       try {
-        const response = await axios.post('/auth/signup', {
+        const backendUrl = process.env.VUE_APP_BACKEND_URL;
+        const response = await axios.post(`${backendUrl}/auth/signup`, {
           email: this.email,
           nickname: this.nickname,
           password: this.password,

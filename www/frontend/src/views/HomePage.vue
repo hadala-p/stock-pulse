@@ -49,10 +49,10 @@ import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
 
-const apiURL = process.env.VUE_APP_API_URL;
+const backendURL = process.env.VUE_APP_BACKEND_URL;
 const axios = require('axios');
 
-if (!apiURL) {
+if (!backendURL) {
   alert('API_URL is not set. Please set it in the .env file');
 }
 
@@ -67,7 +67,7 @@ export default {
     const getStockPrices = () => {
       axios({
       method: 'get',
-      url: `${apiURL}/prediction/my`,
+      url: `${backendURL}/prediction/my`,
       headers: {
         "Content-Type": "application/json",
         Authorization: `${localStorage.getItem('token')}`
