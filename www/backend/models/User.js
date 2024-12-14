@@ -22,6 +22,7 @@ const User = {
 };
 
 module.exports = {
+    model: null,
     initialize(sequelize) {
         this.model = sequelize.define("User", User);
         return this.model;

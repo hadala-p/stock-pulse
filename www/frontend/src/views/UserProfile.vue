@@ -14,6 +14,13 @@
     <h1>Hi! {{ nickname }}</h1>
     <p>Welcome to your profile page!</p>
     <div class="mt-5 d-flex flex-column align-items-center">
+      <div v-if="successMessage" class="alert alert-success w-50 mb-4" role="alert">
+        {{ successMessage }}
+      </div>
+      <div v-if="errorMessage" class="alert alert-danger w-50 mb-4" role="alert">
+        {{ errorMessage }}
+      </div>
+
       <div class="w-100 mb-3 text-center">
         <button @click="showEmailForm = !showEmailForm" class="btn btn-success" style="width: 33%;">Change Email</button>
         <transition name="slide">
@@ -58,7 +65,7 @@
 </template>
 
 <script>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -66,7 +73,7 @@ export default {
   setup() {
     const router = useRouter();
     const nickname = inject('nickname');
-    const currentEmail = ref('example@example.com');
+    const currentEmail = ref('');
     const newEmail = ref('');
     const currentPassword = ref('');
     const newPassword = ref('');
@@ -74,35 +81,131 @@ export default {
     const imageUrl = ref('https://via.placeholder.com/150');
     const showEmailForm = ref(false);
     const showPasswordForm = ref(false);
+    const token = localStorage.getItem('token');
+    const apiURL = process.env.VUE_APP_API_URL;
+
+    const successMessage = ref('');
+    const errorMessage = ref('');
+
+    const clearMessages = () => {
+      successMessage.value = '';
+      errorMessage.value = '';
+    };
 
     const onFileChange = e => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => { imageUrl.value = ev.target.result; };
+      reader.onload = ev => {
+        imageUrl.value = ev.target.result;
+      };
       reader.readAsDataURL(file);
     };
 
-    const changeEmail = () => {
-      if (newEmail.value.trim()) {
-        currentEmail.value = newEmail.value.trim();
-        newEmail.value = '';
-        showEmailForm.value = false;
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${apiURL}/user/me`, {
+          headers: {
+            'Authorization': token
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        const data = await response.json();
+        currentEmail.value = data.email;
+      } catch (error) {
+        console.error(error);
       }
     };
 
-    const changePassword = () => {
-      if (newPassword.value && newPassword.value === repeatNewPassword.value) {
+    const changeEmail = async () => {
+      clearMessages();
+      if (!newEmail.value.trim()) {
+        errorMessage.value = 'Email cannot be empty';
+        return;
+      }
+      try {
+        const response = await fetch(`${apiURL}/user/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({ email: newEmail.value.trim() })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update email');
+        }
+        const updatedUser = await response.json();
+        currentEmail.value = updatedUser.email;
+        newEmail.value = '';
+        showEmailForm.value = false;
+        successMessage.value = 'Email has been updated successfully!';
+        setTimeout(() => { successMessage.value = ''; }, 3000);
+      } catch (error) {
+        console.error(error);
+        errorMessage.value = 'Error updating email.';
+        setTimeout(() => { errorMessage.value = ''; }, 3000);
+      }
+    };
+
+    const changePassword = async () => {
+      clearMessages();
+
+      if (!newPassword.value || newPassword.value.length < 6) {
+        errorMessage.value = 'Password must contain at least 6 characters.';
+        return;
+      }
+
+      if (newPassword.value !== repeatNewPassword.value) {
+        errorMessage.value = 'Passwords do not match.';
+        return;
+      }
+
+      if (!currentPassword.value.trim()) {
+        errorMessage.value = 'Please provide your current password.';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiURL}/user/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({
+            currentPassword: currentPassword.value.trim(),
+            password: newPassword.value.trim()
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update password');
+        }
+
         currentPassword.value = '';
         newPassword.value = '';
         repeatNewPassword.value = '';
         showPasswordForm.value = false;
+        successMessage.value = 'Password has been updated successfully!';
+        setTimeout(() => { successMessage.value = ''; }, 3000);
+      } catch (error) {
+        console.error(error);
+        errorMessage.value = error.message || 'Error updating password.';
+        setTimeout(() => { errorMessage.value = ''; }, 3000);
       }
     };
 
     const goToFavourites = () => {
       router.push('/favourites');
     };
+
+    onMounted(() => {
+      fetchUserData();
+    });
 
     return {
       nickname,
@@ -117,7 +220,9 @@ export default {
       changePassword,
       showEmailForm,
       showPasswordForm,
-      goToFavourites
+      goToFavourites,
+      successMessage,
+      errorMessage
     };
   },
 };
