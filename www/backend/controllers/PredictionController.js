@@ -139,49 +139,42 @@ module.exports = {
             });
     },
 
-    getMyDailyPredictions: (req, res) => {
+    getMyDailyPredictions: async (req, res) => {
         const token = req.headers.authorization;
         const user = jwt.decode(token);
-        DailyPrediction.getDailyPredictionsOf(user)
-            .then(async (predictions) => {
-                await predictions.forEach(async (prediction) => {
-                    if (new Date() - prediction.lastPredictionUpdate > 12 * 60 * 60 * 1000) {
-                        let predictedData = await calculateDailyPredictionData(prediction.companyName);
-                        let putPredictionResponse = await Prediction.putPrediction(prediction.id, predictedData.baseData, predictedData.predictedData);
-                        if (!putPredictionResponse) {
-                            return res.status(500).json({
-                                status: false,
-                                error: 'Failed to update daily prediction.',
+    
+        try {
+            const predictions = await DailyPrediction.getDailyPredictionsOf(user);
+    
+            for (const prediction of predictions) {
+                if (new Date() - new Date(prediction.lastPredictionUpdate) > 12 * 60 * 60 * 1000) {
+                    const predictedData = await calculateDailyPredictionData(prediction.companyName);
+                    const putPredictionResponse = await Prediction.putPrediction(prediction.id, predictedData.baseData, predictedData.predictedData);
+                    if (!putPredictionResponse) {
+                        return res.status(500).json({
+                            status: false,
+                            error: 'Failed to update daily prediction.',
                         });
                     }
-                };
-                
-                let dailyPredictions = [];
-                let publicPredictions = await Prediction.getPublicPredictions();
-                publicPredictions.forEach((publicPrediction) => {
-                    predictions.forEach((dailyPrediction) => {
-                        if (publicPrediction.companyName === dailyPrediction.companyName) {
-                            dailyPredictions.push(publicPrediction);
-                        }
-                    });
-                });
+                }
+            }
 
-                return res.status(200).json({
-                    status: true,
-                    result: dailyPredictions,
-                });
-            }).catch((err) => {
-                return res.status(500).json({
-                    status: false,
-                    error: err,
-                });
+            const publicPredictions = await Prediction.getPublicPredictions();
+            const dailyPredictions = publicPredictions.filter(publicPrediction =>
+                predictions.some(dailyPrediction => publicPrediction.companyName === dailyPrediction.companyName)
+            );
+
+            return res.status(200).json({
+                status: true,
+                result: dailyPredictions,
             });
-        }).catch((err) => {
+        } catch (err) {
+            console.error('Error:', err);
             return res.status(500).json({
                 status: false,
-                error: err,
+                error: err.message,
             });
-        });
+        }
     },
 
     postPrediction: (req, res) => {
