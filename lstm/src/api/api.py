@@ -77,14 +77,13 @@ def predict():
     input_data = request_data["data"]
     show_plot = request_data["showPlot"]
     flip_data = request_data.get("flipData")
-
     if flip_data:
         input_data = np.flip(input_data)
 
     print(f"Received prediction request with: {len(input_data)} time points")
 
     data_length = len(input_data)
-    if data_length < input_size + prediction_offset:
+    if data_length < input_size + prediction_offset + 2:
         return jsonify({"error": "Not enough data points for prediction."}), 400
 
     x_data = np.array([float(item) for item in input_data])
@@ -98,11 +97,12 @@ def predict():
     input_window = x_train_norm[-(prediction_offset + 1)]
     y_actual = []
     predictions_norm = []
-    for i in range(
-        len(y_train) - prediction_days_amount - prediction_offset,
-        len(y_train) - prediction_offset,
-    ):
-        y_actual.append(y_train[i])
+    if show_plot:
+        for i in range(
+            len(y_train) - prediction_days_amount - prediction_offset,
+            len(y_train) - prediction_offset,
+        ):
+            y_actual.append(y_train[i])
 
     for i in range(prediction_days_amount):
         predicted_output_norm, _ = model.forward(input_window)

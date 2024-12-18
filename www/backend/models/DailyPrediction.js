@@ -18,7 +18,7 @@ const DailyPrediction = {
 
 module.exports = {
     initialize(sequelize) {
-        this.model = sequelize.define("DailyPrediction", Prediction);
+        this.model = sequelize.define("DailyPrediction", DailyPrediction);
         return this.model;
     },
 
