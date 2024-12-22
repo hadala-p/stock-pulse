@@ -54,11 +54,6 @@ module.exports = {
     },
 
     putPrediction(id, baseData, predictedData) {
-        let userId = null;
-        if (owner !== null) {
-            userId = owner.id;
-        }
-
         return this.model.update(
             {
                 baseData: baseData,

@@ -11,5 +11,6 @@ module.exports = {
         userModel.hasMany(predictionModel);
         predictionModel.belongsTo(userModel);
         dailyPredictionModel.belongsTo(userModel);
+        userModel.hasMany(dailyPredictionModel);
     }
 };

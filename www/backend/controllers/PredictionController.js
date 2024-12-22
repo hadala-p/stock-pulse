@@ -23,7 +23,7 @@ const calculateDailyPredictionData = async (companyName) => {
         const response = await getLSTMPrediction(validClosingPrices, 30, 0, false, false);
         return {
             baseData: validClosingPrices,
-            predictedData: response,
+            predictedData: response.data,
         };
     } catch (err) {
         console.error(`Error fetching data for ${companyName}:`, err);
@@ -53,6 +53,10 @@ const postDailyPrediction = async (req, res) => {
     const { companyName } = req.body;
 
     try {
+        const userDailyPredictions = await DailyPrediction.getDailyPredictionsOf(user);
+        if (userDailyPredictions.find(prediction => prediction.companyName === companyName)) {
+            throw new Error('Daily prediction already exists for this company.');
+        }
         const data = await calculateDailyPredictionData(companyName);
         const predictionUpdated = await updatePrediction(companyName, data);
         const dailyPredictionUpdated = await DailyPrediction.postDailyPrediction(user, companyName);
@@ -65,7 +69,7 @@ const postDailyPrediction = async (req, res) => {
         } else {
             return res.status(500).json({
                 status: false,
-                error: 'Prediction creation failed.',
+                error: `Prediction creation failed.`,
             });
         }
     } catch (err) {
@@ -150,7 +154,8 @@ module.exports = {
                 if (new Date() - new Date(prediction.lastPredictionUpdate) > 12 * 60 * 60 * 1000) {
                     const predictedData = await calculateDailyPredictionData(prediction.companyName);
                     const putPredictionResponse = await Prediction.putPrediction(prediction.id, predictedData.baseData, predictedData.predictedData);
-                    if (!putPredictionResponse) {
+                    const putDailyPredictionResponse = await DailyPrediction.putDailyPrediction(prediction.id, new Date());
+                    if (!putPredictionResponse || !putDailyPredictionResponse) {
                         return res.status(500).json({
                             status: false,
                             error: 'Failed to update daily prediction.',

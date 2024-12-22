@@ -5,5 +5,5 @@ router.get( "/my", PredictionController.getMyPredictions);
 router.get( "/public", PredictionController.getPublicPredictions);
 router.post( "/post", PredictionController.postPrediction);
 router.post( "/postDaily", PredictionController.postDailyPrediction);
-router.post( "/myDaily", PredictionController.getMyDailyPredictions);
+router.get( "/myDaily", PredictionController.getMyDailyPredictions);
 module.exports = router;
