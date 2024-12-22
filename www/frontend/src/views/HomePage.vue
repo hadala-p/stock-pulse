@@ -101,6 +101,43 @@ export default {
       });
     };
 
+    const getDailyStockPrices = () => {
+      axios({
+      method: 'get',
+      url: `${apiURL}/prediction/myDaily`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem('token')}`
+      }
+      }).then(response => {
+          if (response.status !== 200) 
+          {
+            alert('Error loading predictions');
+            return;
+          }
+
+          response.data.result.forEach((stock) => {
+            let baseData = stock.baseData.reverse();
+            let stockChange = Number((stock.predictedData[stock.predictedData.length - 1] - baseData[baseData.length - 1]) / baseData[baseData.length - 1] * 100);
+            stocks.value.push(
+              {
+                id: stock.id,
+                name: stock.companyName,
+                averageLoss: stock.averageLoss,
+                predictionStartIndex: stock.predictionStartIndex,
+                baseData: baseData,
+                predictedData: stock.predictedData,
+                change: stockChange,
+              });
+          });
+
+      }).catch((err) => {
+        close();
+        alert(`Failed to get predictions: ${err}`);
+        return;
+      });
+    };
+
     const validateToken = (token) => {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -114,6 +151,7 @@ export default {
     const token = localStorage.getItem('token');
     if (token && validateToken(token)) {
       getStockPrices();
+      getDailyStockPrices();
     }
 
     const stocks = ref([]);
