@@ -3,7 +3,7 @@
     <div class="row">
       <div
           class="col-md-4"
-          v-for="(stock, index) in stocks"
+          v-for="(stock, index) in filteredStocks"
           :key="stock.id"
       >
         <StockCard
@@ -43,8 +43,9 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter }  from 'vue-router';
+import  { EventBus } from '../EventBus';
 import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
@@ -64,6 +65,17 @@ export default {
     AddPredictionModal,
   },
   setup() {
+    const handleSearch = (query) => {
+      if (!query || query === '') {
+        filteredStocks.value = stocks.value;
+        return;
+      }
+
+      filteredStocks.value = stocks.value.filter((stock) =>
+          stock.name.toLowerCase().includes(query.toLowerCase())
+      );
+    };
+
     const getStockPrices = () => {
       axios({
       method: 'get',
@@ -93,7 +105,7 @@ export default {
                 change: stockChange,
               });
           });
-
+          handleSearch();
       }).catch((err) => {
         close();
         alert(`Failed to get predictions: ${err}`);
@@ -130,7 +142,7 @@ export default {
                 change: stockChange,
               });
           });
-
+          handleSearch();
       }).catch((err) => {
         close();
         alert(`Failed to get predictions: ${err}`);
@@ -155,6 +167,7 @@ export default {
     }
 
     const stocks = ref([]);
+    const filteredStocks = ref([]);
     const router = useRouter();
     const starredIndexes = ref([]);
     const animatingIndexes = ref([]);
@@ -204,10 +217,16 @@ export default {
         localStorage.removeItem('token');
         router.push('/login');
       }
+
+      EventBus.on('search', handleSearch);
+    });
+
+    onUnmounted(() => {
+      EventBus.off('search', handleSearch);
     });
 
     return {
-      stocks,
+      filteredStocks,
       starredIndexes,
       animatingIndexes,
       selectedStock,
