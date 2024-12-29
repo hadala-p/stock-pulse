@@ -13,7 +13,7 @@
             @drop.prevent="handleFileDrop"
             @click="triggerFileInput"
         >
-          <p :class="{ 'file-dropped': fileDropped }">Drag and drop the file here or click to select a file</p>
+          <p :class="{ 'file-dropped': fileDropped }">Drag and drop custom json data</p>
           <input
               type="file"
               ref="fileInputRef"
@@ -99,47 +99,73 @@ export default {
     };
 
     const upload = () => 
-    {
-      if (file.value === null) {
-        alert('Please select a file.');
-        return;
-      }
-      
+    { 
       if (companyName.value === '') {
         alert('Please enter the company name.');
         return;
       }
-
       let jsonToUpload = {
-        companyName: companyName.value,
-        predictionStartOffset: 0,
-        predictionDays: 30,
-        baseData: file.value,
+        companyName: companyName.value
       };
 
-      axios({
-            method: 'post',
-            url: `${apiURL}/prediction/post`,
-            data: jsonToUpload,
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `${localStorage.getItem('token')}`
-            }
-        }).then(response => {
-            if (response.status !== 200) 
-            {
+      if (file.value !== null) {
+        jsonToUpload = {
+          companyName: companyName.value,
+          predictionStartOffset: 0,
+          predictionDays: 30,
+          baseData: file.value,
+        };
+      }
+
+      if (file.value !== null) {
+        axios({
+              method: 'post',
+              url: `${apiURL}/prediction/post`,
+              data: jsonToUpload,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `${localStorage.getItem('token')}`
+              }
+          }).then(response => {
+              if (response.status !== 200) 
+              {
+                close();
+                alert('Error uploading prediction');
+                return;
+              }
+              
               close();
-              alert('Error uploading prediction');
-              return;
-            }
-            
+              emit('new-stock');
+          }).catch((err) => {
             close();
-            emit('new-stock');
-        }).catch((err) => {
-          close();
-          alert(`Error uploading prediction: ${err}`);
-          return;
-        });
+            alert(`Error uploading prediction: ${err}`);
+            return;
+          });
+      } else {
+        axios({
+              method: 'post',
+              url: `${apiURL}/prediction/postDaily`,
+              data: jsonToUpload,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `${localStorage.getItem('token')}`
+              }
+          }).then(response => {
+              if (response.status !== 200) 
+              {
+                close();
+                alert('Error uploading prediction');
+                return;
+              }
+              
+              close();
+              emit('new-stock');
+          }).catch((err) => {
+            close();
+            alert(`Error uploading prediction: ${err}`);
+            return;
+          });
+      }
     };
 
     return {

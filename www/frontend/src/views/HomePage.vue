@@ -3,7 +3,7 @@
     <div class="row">
       <div
           class="col-md-4"
-          v-for="(stock, index) in stocks"
+          v-for="(stock, index) in filteredStocks"
           :key="stock.id"
       >
         <StockCard
@@ -43,8 +43,9 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter }  from 'vue-router';
+import  { EventBus } from '../EventBus';
 import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
@@ -64,6 +65,17 @@ export default {
     AddPredictionModal,
   },
   setup() {
+    const handleSearch = (query) => {
+      if (!query || query === '') {
+        filteredStocks.value = stocks.value;
+        return;
+      }
+
+      filteredStocks.value = stocks.value.filter((stock) =>
+          stock.name.toLowerCase().includes(query.toLowerCase())
+      );
+    };
+
     const getStockPrices = () => {
       axios({
       method: 'get',
@@ -93,7 +105,44 @@ export default {
                 change: stockChange,
               });
           });
+          handleSearch();
+      }).catch((err) => {
+        close();
+        alert(`Failed to get predictions: ${err}`);
+        return;
+      });
+    };
 
+    const getDailyStockPrices = () => {
+      axios({
+      method: 'get',
+      url: `${apiURL}/prediction/myDaily`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem('token')}`
+      }
+      }).then(response => {
+          if (response.status !== 200) 
+          {
+            alert('Error loading predictions');
+            return;
+          }
+
+          response.data.result.forEach((stock) => {
+            let baseData = stock.baseData.reverse();
+            let stockChange = Number((stock.predictedData[stock.predictedData.length - 1] - baseData[baseData.length - 1]) / baseData[baseData.length - 1] * 100);
+            stocks.value.push(
+              {
+                id: stock.id,
+                name: stock.companyName,
+                averageLoss: stock.averageLoss,
+                predictionStartIndex: stock.predictionStartIndex,
+                baseData: baseData,
+                predictedData: stock.predictedData,
+                change: stockChange,
+              });
+          });
+          handleSearch();
       }).catch((err) => {
         close();
         alert(`Failed to get predictions: ${err}`);
@@ -114,9 +163,11 @@ export default {
     const token = localStorage.getItem('token');
     if (token && validateToken(token)) {
       getStockPrices();
+      getDailyStockPrices();
     }
 
     const stocks = ref([]);
+    const filteredStocks = ref([]);
     const router = useRouter();
     const starredIndexes = ref([]);
     const animatingIndexes = ref([]);
@@ -166,10 +217,16 @@ export default {
         localStorage.removeItem('token');
         router.push('/login');
       }
+
+      EventBus.on('search', handleSearch);
+    });
+
+    onUnmounted(() => {
+      EventBus.off('search', handleSearch);
     });
 
     return {
-      stocks,
+      filteredStocks,
       starredIndexes,
       animatingIndexes,
       selectedStock,
