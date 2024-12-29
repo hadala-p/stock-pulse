@@ -24,14 +24,12 @@
               @submit.prevent="handleSearch">
           <input
               v-model="searchQuery"
+              @input="handleSearch"
               aria-label="Search"
               class="form-control search-input"
               placeholder="Search"
               type="search"
           />
-          <button class="btn btn-outline-light" type="submit">
-            <i class="fas fa-search"></i>
-          </button>
         </form>
 
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -61,8 +59,9 @@
 </template>
 
 <script>
-import {inject} from 'vue';
+import { inject } from 'vue';
 import {useRoute, useRouter} from 'vue-router';
+import { EventBus } from '../EventBus';
 
 export default {
   name: 'AppNavbar',
@@ -94,9 +93,7 @@ export default {
   },
   methods: {
     handleSearch() {
-      // Logic to handle search
-      // TO DO: Implement search functionality
-      console.log('Search query:', this.searchQuery);
+      EventBus.emit('search', this.searchQuery);
     },
   },
 };

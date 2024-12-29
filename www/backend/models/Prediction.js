@@ -37,14 +37,34 @@ module.exports = {
     },
 
     postPrediction(owner, companyName, averageLoss, predictionStartIndex, baseData, predictedData) {
+        let userId = null;
+        if (owner !== null) 
+        {
+            userId = owner.id;
+        }
+        
         return this.model.create({
-            UserId: owner.id,
+            UserId: userId,
             companyName: companyName,
             averageLoss: averageLoss,
             predictionStartIndex: predictionStartIndex,
             baseData: baseData,
             predictedData: predictedData,
         });
+    },
+
+    putPrediction(id, baseData, predictedData) {
+        return this.model.update(
+            {
+                baseData: baseData,
+                predictedData: predictedData,
+            },
+            {
+                where: {
+                    id: id,
+                },
+            }
+        );
     },
 
     getPublicPredictions() {
