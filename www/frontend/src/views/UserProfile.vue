@@ -200,7 +200,7 @@ export default {
     };
 
     const goToFavourites = () => {
-      router.push('/favourites');
+      router.push('/favorites');
     };
 
     onMounted(() => {
