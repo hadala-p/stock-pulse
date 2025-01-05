@@ -18,7 +18,7 @@ const sequelize = new Sequelize({
 
 const models = require('./models/index.js');
 models.initialize(sequelize);
-sequelize.sync({ alter: true });
+sequelize.sync({ force: false });
 
 const routes = require('./routes/index.js');
 routes.initialize(app);
