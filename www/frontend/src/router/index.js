@@ -11,13 +11,8 @@ const routes = [
     { path: '/login', name: 'LoginPage', component: LoginPage },
     { path: '/register', name: 'RegisterPage', component: RegisterPage },
     { path: '/predictions', name: 'PredictionsPage', component: PredictionsPage },
-    {
-        path: '/favorites',
-        name: 'FavoritesPage',
-        component: FavoritesPage,
-        meta: { requiresAuth: true },
-    },
     { path: '/profile', name: 'UserProfile', component: UserProfile, meta: { requiresAuth: true } },
+    { path: '/favorites', name: 'FavoritesPage', component: FavoritesPage, meta: { requiresAuth: true },},
 ];
 
 const router = createRouter({

@@ -176,16 +176,44 @@ export default {
     const showAddModal = ref(false);
 
     const toggleStar = (index) => {
+      const stock = stocks.value[index];
+
       if (starredIndexes.value.includes(index)) {
-        starredIndexes.value = starredIndexes.value.filter((i) => i !== index);
+        axios
+            .delete(`${apiURL}/favorites/${stock.id}`, {
+              headers: {
+                Authorization: `${localStorage.getItem('token')}`,
+              },
+            })
+            .then(() => {
+              starredIndexes.value = starredIndexes.value.filter((i) => i !== index);
+            })
+            .catch((err) => {
+              console.error(`Failed to remove favourite: ${err}`);
+            });
       } else {
-        starredIndexes.value.push(index);
+        axios
+            .post(
+                `${apiURL}/favorites`,
+                { stockId: stock.id },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${localStorage.getItem('token')}`,
+                  },
+                }
+            )
+            .then(() => {
+              starredIndexes.value.push(index);
+            })
+            .catch((err) => {
+              console.error(`Failed to add favourite: ${err}`);
+            });
       }
+
       animatingIndexes.value.push(index);
       setTimeout(() => {
-        animatingIndexes.value = animatingIndexes.value.filter(
-            (i) => i !== index
-        );
+        animatingIndexes.value = animatingIndexes.value.filter((i) => i !== index);
       }, 300);
     };
 
