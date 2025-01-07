@@ -3,7 +3,7 @@ const Prediction = require('../models/Prediction');
 const DailyPrediction = require('../models/DailyPrediction');
 const jwt = require('jsonwebtoken');
 const yahooFinance = require('yahoo-finance2').default;
-const predictURL = 'http://localhost:5000/predict';
+const predictURL = 'http://python-lstm:5000/predict';
 
 const calculateDailyPredictionData = async (companyName) => {
     const today = new Date();
@@ -21,9 +21,15 @@ const calculateDailyPredictionData = async (companyName) => {
         }
         const validClosingPrices = closingPrices.reverse().slice(0, 62);
         const response = await getLSTMPrediction(validClosingPrices, 30, 0, false, false);
+        const averageLoss = isFinite(response.averageLoss) ? response.averageLoss : 0;
+        if (!response || !response.data || response.data.length === 0 || !isFinite(response.averageLoss)) {
+            throw new Error('Invalid response from LSTM prediction service.');
+        }
+
         return {
             baseData: validClosingPrices,
             predictedData: response.data,
+            averageLoss: averageLoss,
         };
     } catch (err) {
         console.error(`Error fetching data for ${companyName}:`, err);
@@ -80,29 +86,28 @@ const postDailyPrediction = async (req, res) => {
     }
 };
 
-const getLSTMPrediction = (data, days, offset, showPlot, flipData) => 
-    {
-        return axios({
-            method: 'post',
-            url: predictURL,
-            data: {
-              days: days,
-              offset: offset,
-              showPlot: showPlot,
-              data: data,
-              flipData: flipData,
-            }
-        }).then(response => {
-            if (response.status !== 200) 
-            {
-                throw new Error('Prediction failed.');
-            }
-            return response.data;
-        }).catch((err) => {
-            throw new Error(err);
-        });
-    };
-
+const getLSTMPrediction = (data, days, offset, showPlot, flipData) => {
+    return axios({
+        method: 'post',
+        url: predictURL,
+        data: {
+            days: days,
+            offset: offset,
+            showPlot: showPlot,
+            data: data,
+            flipData: flipData,
+        }
+    }).then(response => {
+        console.log('LSTM prediction response:', response.data);
+        if (response.status !== 200) {
+            throw new Error('Prediction failed.');
+        }
+        return response.data;
+    }).catch((err) => {
+        console.error('Error in LSTM prediction service:', err.message || err);
+        throw new Error('Invalid response from LSTM prediction service.');
+    });
+};
 module.exports = {
     calculateDailyPredictionData,
     postDailyPrediction,

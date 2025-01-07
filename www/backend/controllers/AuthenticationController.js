@@ -1,5 +1,5 @@
-const jsonWebTokenController = require('./JsonWebTokenController');
-const bcryptController = require('./BcryptController');
+const jsonWebTokenController = require('./JSONWebTokenController');
+const bcryptController = require('./BCryptController');
 const User = require('../models/User');
 
 module.exports = {

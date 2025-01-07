@@ -82,7 +82,7 @@ export default {
     const showEmailForm = ref(false);
     const showPasswordForm = ref(false);
     const token = localStorage.getItem('token');
-    const apiURL = process.env.VUE_APP_API_URL;
+    const apiURL = 'http://localhost:3000';
 
     const successMessage = ref('');
     const errorMessage = ref('');
