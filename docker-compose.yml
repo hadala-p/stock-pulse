@@ -1,0 +1,38 @@
+services:
+  python-lstm:
+    build:
+      context: ./lstm
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_APP=src/app.py
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    volumes:
+      - ./lstm:/app
+  backend:
+    build:
+      context: ./www/backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - python-lstm
+  frontend:
+    build:
+      context: ./www/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    volumes:
+      - ./www/frontend:/app
+networks:
+  app-network:
+    driver: bridge
