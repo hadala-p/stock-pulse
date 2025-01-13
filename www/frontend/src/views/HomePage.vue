@@ -50,7 +50,7 @@ import StockCard from '../components/StockCard.vue';
 import StockModal from '../components/StockModal.vue';
 import AddPredictionModal from '../components/AddPredictionModal.vue';
 
-const apiURL = process.env.VUE_APP_API_URL;
+const apiURL = 'http://localhost:3000';
 const axios = require('axios');
 
 if (!apiURL) {

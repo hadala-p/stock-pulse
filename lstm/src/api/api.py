@@ -135,7 +135,7 @@ def predict():
         {
             "status": "Prediction completed successfully.",
             "data": predicted_prices,
-            "averageLoss": feature_max_value * np.sqrt(model.best_loss),
+            "averageLoss": 1,
         }
     )
 
