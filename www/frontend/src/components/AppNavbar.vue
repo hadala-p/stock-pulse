@@ -20,8 +20,19 @@
 
       <div id="navbarContent" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto"></ul>
-        <form v-if="route.name !== 'RegisterPage' && route.name !== 'LoginPage'" class="d-flex mx-auto my-2 my-lg-0"
-              @submit.prevent="handleSearch">
+        <form
+            v-if="route.name !== 'RegisterPage' && route.name !== 'LoginPage'"
+            class="d-flex mx-auto my-2 my-lg-0"
+            @submit.prevent="handleSearch"
+        >
+          <button
+              aria-label="Favorites"
+              class="btn btn-link text-white me-2"
+              @click="goToFavorites"
+              type="button"
+          >
+            <i class="fas fa-star"></i>
+          </button>
           <input
               v-model="searchQuery"
               @input="handleSearch"
@@ -79,11 +90,16 @@ export default {
       router.push('/login');
     };
 
+    const goToFavorites = () => {
+      router.push('/favorites');
+    };
+
     return {
       isLoggedIn,
       logout,
       nickname,
       route,
+      goToFavorites,
     };
   },
   data() {

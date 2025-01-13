@@ -7,11 +7,7 @@
     <!-- Star icon -->
     <button
         class="star-button"
-        :class="{
-        'text-warning': isStarred,
-        'text-secondary': !isStarred,
-        pulse: isAnimating,
-      }"
+        :class="{ 'text-warning': isStarred, 'text-secondary': !isStarred }"
         @click.stop="toggleStar"
         aria-label="Toggle Star"
     >

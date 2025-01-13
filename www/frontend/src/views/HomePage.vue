@@ -9,7 +9,7 @@
         <StockCard
             :stock="stock"
             :index="index"
-            :is-starred="starredIndexes.includes(index)"
+            :is-starred="Array.isArray(starredStockIds) && starredStockIds.includes(stock.id)"
             :is-animating="animatingIndexes.includes(index)"
             @toggle-star="toggleStar"
             @open-modal="openModal"
@@ -65,6 +65,7 @@ export default {
     AddPredictionModal,
   },
   setup() {
+    const starredStockIds = ref([]);
     const handleSearch = (query) => {
       if (!query || query === '') {
         filteredStocks.value = stocks.value;
@@ -175,19 +176,65 @@ export default {
     const showStockModal = ref(false);
     const showAddModal = ref(false);
 
+    const loadFavorites = () => {
+      axios
+          .get(`${apiURL}/favorites`, {
+            headers: {
+              Authorization: `${localStorage.getItem('token')}`,
+            },
+          })
+          .then((response) => {
+            if (response.status === 200) {
+              starredStockIds.value = response.data.favorites.map((fav) => fav.stockId);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to load favorites:", err);
+          });
+    };
+
     const toggleStar = (index) => {
-      if (starredIndexes.value.includes(index)) {
-        starredIndexes.value = starredIndexes.value.filter((i) => i !== index);
+      const stock = stocks.value[index];
+
+      if (starredStockIds.value.includes(stock.id)) {
+        axios
+            .delete(`${apiURL}/favorites/${stock.id}`, {
+              headers: {
+                Authorization: `${localStorage.getItem('token')}`,
+              },
+            })
+            .then(() => {
+              starredStockIds.value = starredStockIds.value.filter((id) => id !== stock.id);
+            })
+            .catch((err) => {
+              console.error(`Failed to remove favourite: ${err}`);
+            });
       } else {
-        starredIndexes.value.push(index);
+        axios
+            .post(
+                `${apiURL}/favorites`,
+                { stockId: stock.id },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${localStorage.getItem('token')}`,
+                  },
+                }
+            )
+            .then(() => {
+              starredStockIds.value.push(stock.id);
+            })
+            .catch((err) => {
+              console.error(`Failed to add favourite: ${err}`);
+            });
       }
+
       animatingIndexes.value.push(index);
       setTimeout(() => {
-        animatingIndexes.value = animatingIndexes.value.filter(
-            (i) => i !== index
-        );
+        animatingIndexes.value = animatingIndexes.value.filter((i) => i !== index);
       }, 300);
     };
+
 
     const openModal = (stock) => {
       selectedStock.value = stock;
@@ -219,6 +266,7 @@ export default {
       }
 
       EventBus.on('search', handleSearch);
+      loadFavorites();
     });
 
     onUnmounted(() => {
@@ -238,6 +286,7 @@ export default {
       openAddModal,
       closeAddModal,
       addNewStock,
+      starredStockIds,
     };
   },
 };
