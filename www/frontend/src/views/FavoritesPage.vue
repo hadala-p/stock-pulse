@@ -36,7 +36,7 @@ import {useRouter} from 'vue-router'
 import StockCard from '../components/StockCard.vue'
 import StockModal from '../components/StockModal.vue'
 
-const apiURL = process.env.VUE_APP_API_URL
+const apiURL = 'http://localhost:3000'
 const axios = require('axios')
 
 export default {
