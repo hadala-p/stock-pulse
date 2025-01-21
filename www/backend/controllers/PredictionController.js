@@ -7,10 +7,10 @@ const predictURL = 'http://python-lstm:5000/predict';
 
 const calculateDailyPredictionData = async (companyName) => {
     const today = new Date();
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(today.getMonth() - 3);
+    const fourMonthsAgo = new Date();
+    fourMonthsAgo.setMonth(today.getMonth() - 4);
     const queryOptions = {
-        period1: threeMonthsAgo.toISOString().split('T')[0],
+        period1: fourMonthsAgo.toISOString().split('T')[0],
         interval: '1d',
     };
     try {
