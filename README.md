@@ -1,9 +1,18 @@
-![image](https://github.com/user-attachments/assets/5f1ca67e-e418-4ae4-adc6-c7ac3a9c7001)<div align="center">
+<div align="center">
 
 # Stock-Pulse
 
 ![Logo](logo.png)
 
+# Tech stack:
+![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white) Demo: https://www.youtube.com/watch?v=oe0EWDdG6dk
 </div>
 
 # Installation Guide
@@ -110,3 +119,21 @@ networks:
 3. Test the communication between services:
    - Frontend should be able to call backend endpoints
    - Backend should be able to call the Python LSTM algorithm
+  
+![image](https://github.com/user-attachments/assets/5f1ca67e-e418-4ae4-adc6-c7ac3a9c7001)
+![image](https://github.com/user-attachments/assets/8f2abbf3-8fe5-407e-aca5-ab2724d1dc68)
+![image](https://github.com/user-attachments/assets/fa79a790-dc4e-409b-8380-8cc8a717723d)
+![image](https://github.com/user-attachments/assets/2ebd3c8c-eb0c-4a32-a992-80d265dc7097)
+![image](https://github.com/user-attachments/assets/d0b96d2b-60d4-4774-9c76-11c793344b67)
+![image](https://github.com/user-attachments/assets/44837cc6-fe9e-4115-9321-5b71a2e44ced)
+![image](https://github.com/user-attachments/assets/46f5e7c4-0e93-4397-91e2-354082813368)
+![image](https://github.com/user-attachments/assets/7ecbed41-2359-432d-bda5-e14d01322136)
+![image](https://github.com/user-attachments/assets/d0702131-22a6-48ee-b79d-895589616c82)
+
+
+
+
+
+
+
+
